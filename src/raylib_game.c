@@ -154,7 +154,7 @@ void UpdateDrawFrame(void)
         DrawTexturePro(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, -(float)target.texture.height }, (Rectangle){ 0, 0, (float)target.texture.width*screenScale, (float)target.texture.height*screenScale }, (Vector2){ 0, 0 }, 0.0f, WHITE);
 
         // Draw equivalent mouse position on the target render-texture
-        DrawCircleLines(GetMouseX(), GetMouseY(), 10, MAROON);
+        // DrawCircleLines(GetMouseX(), GetMouseY(), 10, MAROON);
 
         // TODO: Draw everything that requires to be drawn at this point:
 

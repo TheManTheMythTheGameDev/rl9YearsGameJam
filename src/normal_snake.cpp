@@ -15,6 +15,16 @@ enum ControlsIndices
 
 Vector2 directions[4] = { up, down, left, right };
 
+void DrawThickLine(Vector2 start, Vector2 end, float diameter, Color col)
+{
+	float dist = BALL_SIZE; // Vector2Distance(start, end);
+	float numCircles = dist / 2.0f;
+	for (int i = 0; i < numCircles; i++)
+	{
+		DrawCircle(Lerp(start.x, end.x, (float)i / (float)numCircles), Lerp(start.y, end.y, (float)i / (float)numCircles), diameter / 2.0f, col);
+	}
+}
+
 NormalSnake::NormalSnake(Vector2 startPos, Vector2 dir, float movementTime)
 {
 	controls[UP] = KEY_UP;
@@ -22,11 +32,10 @@ NormalSnake::NormalSnake(Vector2 startPos, Vector2 dir, float movementTime)
 	controls[LEFT] = KEY_LEFT;
 	controls[RIGHT] = KEY_RIGHT;
 
-	ballSize = 5.0f;
-
 	balls = std::vector<Ball>{ Ball{ startPos, dir } };
 
 	direction = dir;
+	targetDir = direction;
 
 	moveTimer = 0.0f;
 	moveStep = movementTime;
@@ -37,9 +46,22 @@ void NormalSnake::Step(float dt)
 	moveTimer += dt;
 	if (moveTimer >= moveStep)
 	{
+		direction = targetDir;
 		Vector2 curPos = balls[balls.size() - 1].position; // Get current head position
-		balls.erase(balls.begin()); // Remove last ball
-		curPos = Vector2Add(curPos, Vector2Scale(direction, 2.0f));
+		bool deleteBack = true;
+
+		for (int a = 0; a < apples.size(); a++)
+		{
+			if (apples[a].x == curPos.x && apples[a].y == curPos.y)
+			{
+				apples.erase(apples.begin() + a);
+				deleteBack = false;
+			}
+		}
+
+		if (deleteBack) balls.erase(balls.begin()); // Remove last ball
+		else SpawnApple();
+		curPos = Vector2Add(curPos, direction);
 		balls.push_back(Ball{ curPos, direction }); // Move head
 
 		moveTimer -= moveStep;
@@ -52,7 +74,8 @@ void NormalSnake::Step(float dt)
 			// Player can't turn in opposite direction
 			if (direction.x != -directions[i].x && direction.y != -directions[i].y)
 			{
-				direction = directions[i];
+				targetDir = directions[i];
+				break;
 			}
 		}
 	}
@@ -60,8 +83,25 @@ void NormalSnake::Step(float dt)
 
 void NormalSnake::Draw()
 {
-	for (int i = 0; i < balls.size(); i++)
+	float movementPercent = moveTimer / moveStep;
+	Vector2 headPos = Vector2{ 0.0f, 0.0f };
+	for (int i = balls.size() - 1; i >= 0; i--)
 	{
-		DrawCircle(balls[i].position.x * ballSize, balls[i].position.y * ballSize, ballSize, GREEN);
+		Vector2 curPos = balls[i].position;
+		if (i == 0 || i == balls.size() - 1)
+		{
+			curPos = Vector2Lerp(curPos, Vector2Add(curPos, balls[Clamp(i + 1, 0, balls.size() - 1)].direction), movementPercent);
+		}
+		if (i == balls.size() - 1)
+		{
+			DrawCircle(curPos.x * BALL_SIZE, curPos.y * BALL_SIZE, BALL_SIZE / 2.0f, GREEN);
+			headPos = curPos;
+		}
+		else
+		{
+			Vector2 nextPos = balls[i + 1].position;
+			if (i == balls.size() - 2) nextPos = headPos;
+			DrawThickLine(Vector2{ curPos.x * BALL_SIZE, curPos.y * BALL_SIZE }, Vector2{ nextPos.x * BALL_SIZE, nextPos.y * BALL_SIZE }, BALL_SIZE, GREEN);
+		}
 	}
 }

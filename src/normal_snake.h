@@ -4,6 +4,8 @@
 #include <vector>
 #include <map>
 
+#include "normal_apple.h"
+
 extern Vector2 up, down, left, right;
 
 struct Ball
@@ -15,18 +17,17 @@ struct Ball
 class NormalSnake
 {
 public:
-	NormalSnake(Vector2 startPos = Vector2{ 0.0f, 0.0f }, Vector2 dir = right, float movementTime = 0.5f);
+	NormalSnake(Vector2 startPos = Vector2{ 0.0f, 0.0f }, Vector2 dir = right, float movementTime = 0.2f);
 
 	void Step(float dt);
 	void Draw();
-
-	float ballSize;
 
 	int controls[4];
 private:
 	std::vector<Ball> balls;
 	int ballCounter; // Because balls vector is constantly being changed
 	Vector2 direction;
+	Vector2 targetDir;
 	float moveTimer;
 	float moveStep;
 };

@@ -86,6 +86,8 @@ int main(void)
     // TODO: Load resources / Initialize variables at this point
     cam = Camera2D{ Vector2{ 256 / 2.0f, 256 / 2.0f }, Vector2{ 0.0f, 0.0f }, 0.0f, 1.0f };
 
+    InitApples();
+
     normalSnake = NormalSnake(Vector2{ 0.0f, 0.0f });
     
     // Render texture to draw full screen, enables screen scaling
@@ -157,6 +159,7 @@ void UpdateDrawFrame(void)
 
         BeginMode2D(cam);
         {
+            DrawApples();
             normalSnake.Draw();
         }
         

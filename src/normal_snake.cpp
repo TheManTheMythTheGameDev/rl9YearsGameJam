@@ -63,5 +63,6 @@ void NormalSnake::Draw()
 	for (int i = 0; i < balls.size(); i++)
 	{
 		DrawCircle(balls[i].position.x * ballSize, balls[i].position.y * ballSize, ballSize, GREEN);
+		balls[i].position.x++;
 	}
 }

@@ -351,6 +351,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\normal_apple.cpp" />
     <ClCompile Include="..\..\..\src\normal_snake.cpp" />
     <ClCompile Include="..\..\..\src\raylib_game.cpp" />
   </ItemGroup>
@@ -358,6 +359,7 @@
     <ResourceCompile Include="..\..\..\src\raylib_game.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\normal_apple.h" />
     <ClInclude Include="..\..\..\src\normal_snake.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

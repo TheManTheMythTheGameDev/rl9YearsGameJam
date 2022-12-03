@@ -64,6 +64,7 @@ static RenderTexture2D target = { 0 };  // Initialized at init
 static Camera2D cam;
 
 static NormalSnake normalSnake;
+static SnakeState curSnakeState;
 
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
@@ -147,7 +148,7 @@ void UpdateDrawFrame(void)
     // TODO: Update variables / Implement example logic at this point
     //----------------------------------------------------------------------------------
     float dt = GetFrameTime();
-    normalSnake.Step(dt);
+    curSnakeState = normalSnake.Step(dt);
 
     // Draw
     //----------------------------------------------------------------------------------
@@ -159,8 +160,16 @@ void UpdateDrawFrame(void)
 
         BeginMode2D(cam);
         {
+            // If being eaten, draw snake under apples
+            if (curSnakeState == SnakeState::EATING)
+            {
+                normalSnake.Draw();
+            }
             DrawApples();
-            normalSnake.Draw();
+            if (curSnakeState == SnakeState::OK)
+            {
+                normalSnake.Draw();
+            }
         }
         
     EndTextureMode();

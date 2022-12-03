@@ -33,52 +33,88 @@ NormalSnake::NormalSnake(Vector2 startPos, Vector2 dir, float movementTime)
 	controls[RIGHT] = KEY_RIGHT;
 
 	balls = std::vector<Ball>{ Ball{ startPos, dir } };
+	ballCounter = 1;
 
 	direction = dir;
 	targetDir = direction;
 
 	moveTimer = 0.0f;
 	moveStep = movementTime;
+
+	beingEaten = false;
+	eatenID = 0;
+
+	ateTimer = 0.0f;
+	ateAnimationTime = 1.0f;
+	ateStartSize = 0.0f;
 }
 
-void NormalSnake::Step(float dt)
+SnakeState NormalSnake::Step(float dt)
 {
-	moveTimer += dt;
-	if (moveTimer >= moveStep)
+	if (balls.size() > 0)
 	{
-		direction = targetDir;
-		Vector2 curPos = balls[balls.size() - 1].position; // Get current head position
-		bool deleteBack = true;
-
-		for (int a = 0; a < apples.size(); a++)
+		moveTimer += dt;
+		if (moveTimer >= moveStep)
 		{
-			if (apples[a].x == curPos.x && apples[a].y == curPos.y)
+			direction = targetDir;
+			Vector2 curPos = balls[balls.size() - 1].position; // Get current head position
+			bool deleteBack = true;
+
+			for (int a = 0; a < apples.size(); a++)
 			{
-				apples.erase(apples.begin() + a);
-				deleteBack = false;
+				if (apples[a].pos.x == curPos.x && apples[a].pos.y == curPos.y)
+				{
+					if (ballCounter < 7)
+					{
+						apples.erase(apples.begin() + a);
+						deleteBack = false;
+						ballCounter++;
+					}
+					else
+					{
+						beingEaten = true;
+						eatenID = a;
+					}
+				}
 			}
+
+			if (deleteBack) balls.erase(balls.begin()); // Remove last ball
+			else SpawnApple();
+			curPos = Vector2Add(curPos, direction);
+			if (!beingEaten) balls.push_back(Ball{ curPos, direction }); // Move head
+			else
+			{
+				apples[eatenID].size += 5;
+				ateStartSize = apples[eatenID].size;
+			}
+
+			moveTimer -= moveStep;
 		}
 
-		if (deleteBack) balls.erase(balls.begin()); // Remove last ball
-		else SpawnApple();
-		curPos = Vector2Add(curPos, direction);
-		balls.push_back(Ball{ curPos, direction }); // Move head
-
-		moveTimer -= moveStep;
-	}
-
-	for (int i = 0; i < 4; i++)
-	{
-		if (IsKeyPressed(controls[i]))
+		for (int i = 0; i < 4; i++)
 		{
-			// Player can't turn in opposite direction
-			if (direction.x != -directions[i].x && direction.y != -directions[i].y)
+			if (IsKeyPressed(controls[i]))
 			{
-				targetDir = directions[i];
-				break;
+				// Player can't turn in opposite direction
+				if (direction.x != -directions[i].x && direction.y != -directions[i].y)
+				{
+					targetDir = directions[i];
+					break;
+				}
 			}
 		}
+		if (beingEaten)
+		{
+			return EATING;
+		}
+		else
+		{
+			return OK;
+		}
 	}
+	ateTimer += dt;
+	apples[eatenID].size = EaseElasticInOut(ateTimer, ateStartSize, -ateStartSize, ateAnimationTime);
+	return ATE;
 }
 
 void NormalSnake::Draw()

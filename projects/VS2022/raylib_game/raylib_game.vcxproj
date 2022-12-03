@@ -361,6 +361,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\src\normal_apple.h" />
     <ClInclude Include="..\..\..\src\normal_snake.h" />
+    <ClInclude Include="..\..\..\src\reasings.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -22,6 +22,8 @@
 #include <stdlib.h>                         // Required for: 
 #include <string.h>                         // Required for: 
 
+#include "normal_snake.h"
+
 //----------------------------------------------------------------------------------
 // Defines and Macros
 //----------------------------------------------------------------------------------
@@ -59,6 +61,10 @@ static RenderTexture2D target = { 0 };  // Initialized at init
 
 // TODO: Define global variables here, recommended to make them static
 
+static Camera2D cam;
+
+static NormalSnake normalSnake;
+
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
@@ -78,6 +84,9 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "raylib 9yr gamejam");
     
     // TODO: Load resources / Initialize variables at this point
+    cam = Camera2D{ Vector2{ 256 / 2.0f, 256 / 2.0f }, Vector2{ 0.0f, 0.0f }, 0.0f, 1.0f };
+
+    normalSnake = NormalSnake(Vector2{ 0.0f, 0.0f });
     
     // Render texture to draw full screen, enables screen scaling
     // NOTE: If screen is scaled, mouse input should be scaled proportionally
@@ -135,6 +144,8 @@ void UpdateDrawFrame(void)
 
     // TODO: Update variables / Implement example logic at this point
     //----------------------------------------------------------------------------------
+    float dt = GetFrameTime();
+    normalSnake.Step(dt);
 
     // Draw
     //----------------------------------------------------------------------------------
@@ -143,7 +154,11 @@ void UpdateDrawFrame(void)
         ClearBackground(RAYWHITE);
         
         // TODO: Draw screen at 256x256
-        DrawRectangle(10, 10, screenWidth - 20, screenHeight - 20, SKYBLUE);
+
+        BeginMode2D(cam);
+        {
+            normalSnake.Draw();
+        }
         
     EndTextureMode();
     
@@ -151,7 +166,7 @@ void UpdateDrawFrame(void)
         ClearBackground(RAYWHITE);
         
         // Draw render texture to screen scaled as required
-        DrawTexturePro(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, -(float)target.texture.height }, (Rectangle){ 0, 0, (float)target.texture.width*screenScale, (float)target.texture.height*screenScale }, (Vector2){ 0, 0 }, 0.0f, WHITE);
+        DrawTexturePro(target.texture, Rectangle{ 0, 0, (float)target.texture.width, -(float)target.texture.height }, Rectangle{ 0, 0, (float)target.texture.width*screenScale, (float)target.texture.height*screenScale }, Vector2{ 0, 0 }, 0.0f, WHITE);
 
         // Draw equivalent mouse position on the target render-texture
         // DrawCircleLines(GetMouseX(), GetMouseY(), 10, MAROON);

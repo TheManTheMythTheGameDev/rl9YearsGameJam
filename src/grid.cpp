@@ -10,8 +10,7 @@ void InitGrid()
 		grid[i][GRID_Y - 1] = 1;
 	}
 
-	grid[5][GRID_Y - 2] = 1;
-	grid[10][GRID_Y - 5] = 1;
+	grid[10][GRID_Y - 4] = 1;
 }
 
 void DrawGrid()

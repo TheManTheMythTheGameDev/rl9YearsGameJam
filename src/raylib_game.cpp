@@ -105,7 +105,7 @@ int main(void)
     normalSnake = NormalSnake(Vector2{ 0.0f, 0.0f });
 
     InitGrid();
-    snake = Snake(Vector2{ 32.0f, 100.0f });
+    snake = Snake(Vector2{ 64.0f, 100.0f });
     
     // Render texture to draw full screen, enables screen scaling
     // NOTE: If screen is scaled, mouse input should be scaled proportionally

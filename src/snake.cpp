@@ -7,7 +7,7 @@ enum ControlsIndices
 	UP
 };
 
-Snake::Snake(Vector2 position)
+Snake::Snake(Vector2 position, float spacing)
 {
 	pos = position;
 	r = 5.0f;
@@ -17,6 +17,13 @@ Snake::Snake(Vector2 position)
 	controls[LEFT] = { KEY_LEFT, KEY_A };
 	controls[RIGHT] = { KEY_RIGHT, KEY_D };
 	controls[UP] = { KEY_UP, KEY_W, KEY_Z, KEY_SPACE };
+
+	nodeSpacing = spacing;
+
+	for (int i = 0; i < 7; i++)
+	{
+		nodes.push_back(Vector2{ pos.x, pos.y - (i * nodeSpacing) });
+	}
 }
 
 void Snake::Update()
@@ -44,9 +51,16 @@ void Snake::Update()
 	}
 
 	Step(); // step physics object
+
+	nodes.pop_back(); // Remove last node
+	nodes.insert(nodes.begin(), Vector2{ pos.x, pos.y });
 }
 
 void Snake::Draw()
 {
-	DrawCircle(pos.x, pos.y, r, GREEN);
+	DrawCircle(pos.x, pos.y, r * 1.3f, GREEN);
+	for (int i = 0; i < nodes.size(); i++)
+	{
+		DrawCircle(nodes[i].x, nodes[i].y, r, GREEN);
+	}
 }

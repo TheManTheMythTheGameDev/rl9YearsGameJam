@@ -4,6 +4,9 @@
     <ClCompile Include="..\..\..\src\raylib_game.cpp" />
     <ClCompile Include="..\..\..\src\normal_snake.cpp" />
     <ClCompile Include="..\..\..\src\normal_apple.cpp" />
+    <ClCompile Include="..\..\..\src\grid.cpp" />
+    <ClCompile Include="..\..\..\src\snake.cpp" />
+    <ClCompile Include="..\..\..\src\physics_object.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\..\src\raylib_game.rc" />
@@ -21,6 +24,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\reasings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\grid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\snake.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\physics_object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

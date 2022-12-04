@@ -114,6 +114,10 @@ SnakeState NormalSnake::Step(float dt)
 	}
 	ateTimer += dt;
 	apples[eatenID].size = EaseElasticInOut(ateTimer, ateStartSize, -ateStartSize, ateAnimationTime);
+	if (apples[eatenID].size <= 0)
+	{
+		return ENDSCENE;
+	}
 	return ATE;
 }
 

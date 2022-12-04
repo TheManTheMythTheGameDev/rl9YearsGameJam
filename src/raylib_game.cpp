@@ -23,6 +23,9 @@
 #include <string.h>                         // Required for: 
 
 #include "normal_snake.h"
+#include "grid.h"
+#include "physics_object.h"
+#include "snake.h"
 
 //----------------------------------------------------------------------------------
 // Defines and Macros
@@ -47,6 +50,10 @@ typedef enum {
 } GameScreen;
 
 // TODO: Define your custom data types here
+typedef enum {
+    NORMAL_SNAKE = 0,
+    SNAKE
+} GameplayState;
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition
@@ -65,6 +72,10 @@ static Camera2D cam;
 
 static NormalSnake normalSnake;
 static SnakeState curSnakeState;
+
+static GameplayState gameplayState;
+
+static Snake snake;
 
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
@@ -85,11 +96,16 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "raylib 9yr gamejam");
     
     // TODO: Load resources / Initialize variables at this point
+    gameplayState = SNAKE;
+
     cam = Camera2D{ Vector2{ 256 / 2.0f, 256 / 2.0f }, Vector2{ 0.0f, 0.0f }, 0.0f, 1.0f };
 
     InitApples();
 
     normalSnake = NormalSnake(Vector2{ 0.0f, 0.0f });
+
+    InitGrid();
+    snake = Snake(Vector2{ 32.0f, 100.0f });
     
     // Render texture to draw full screen, enables screen scaling
     // NOTE: If screen is scaled, mouse input should be scaled proportionally
@@ -148,7 +164,25 @@ void UpdateDrawFrame(void)
     // TODO: Update variables / Implement example logic at this point
     //----------------------------------------------------------------------------------
     float dt = GetFrameTime();
-    curSnakeState = normalSnake.Step(dt);
+
+    switch (gameplayState)
+    {
+    case NORMAL_SNAKE:
+    {
+        curSnakeState = normalSnake.Step(dt);
+        break;
+    }
+    case SNAKE:
+    {
+        cam.offset = Vector2{ 0.0f, 0.0f };
+        snake.Update();
+        break;
+    }
+    default:
+    {
+        break;
+    }
+    }
 
     // Draw
     //----------------------------------------------------------------------------------
@@ -160,15 +194,36 @@ void UpdateDrawFrame(void)
 
         BeginMode2D(cam);
         {
-            // If being eaten, draw snake under apples
-            if (curSnakeState == SnakeState::EATING)
+            switch (gameplayState)
             {
-                normalSnake.Draw();
+            case NORMAL_SNAKE:
+            {
+                // If being eaten, draw snake under apples
+                if (curSnakeState == SnakeState::EATING)
+                {
+                    normalSnake.Draw();
+                }
+                DrawApples();
+                if (curSnakeState == SnakeState::OK)
+                {
+                    normalSnake.Draw();
+                }
+                if (curSnakeState == SnakeState::ENDSCENE)
+                {
+
+                }
+                break;
             }
-            DrawApples();
-            if (curSnakeState == SnakeState::OK)
+            case SNAKE:
             {
-                normalSnake.Draw();
+                DrawGrid();
+                snake.Draw();
+                break;
+            }
+            default:
+            {
+                break;
+            }
             }
         }
         

@@ -20,7 +20,8 @@ enum SnakeState
 {
 	OK = 0,
 	EATING,
-	ATE
+	ATE,
+	ENDSCENE
 };
 
 class NormalSnake

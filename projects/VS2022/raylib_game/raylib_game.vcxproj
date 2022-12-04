@@ -351,17 +351,23 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\grid.cpp" />
     <ClCompile Include="..\..\..\src\normal_apple.cpp" />
     <ClCompile Include="..\..\..\src\normal_snake.cpp" />
+    <ClCompile Include="..\..\..\src\physics_object.cpp" />
     <ClCompile Include="..\..\..\src\raylib_game.cpp" />
+    <ClCompile Include="..\..\..\src\snake.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\..\src\raylib_game.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\grid.h" />
     <ClInclude Include="..\..\..\src\normal_apple.h" />
     <ClInclude Include="..\..\..\src\normal_snake.h" />
+    <ClInclude Include="..\..\..\src\physics_object.h" />
     <ClInclude Include="..\..\..\src\reasings.h" />
+    <ClInclude Include="..\..\..\src\snake.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

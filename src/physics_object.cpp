@@ -20,6 +20,8 @@ void PhysicsObject::Step()
 {
 	vel = Vector2Add(vel, gravity);
 
+	vel = Vector2Scale(vel, 0.99f);
+
 	pos = Vector2Add(pos, vel);
 	Vector2* squares = GetGridEdgePositions();
 

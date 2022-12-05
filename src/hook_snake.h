@@ -21,4 +21,8 @@ private:
 	float startAngle;
 	float targetAngle;
 	float swingTimer;
+
+	Vector2 lastPos;
+	Vector2 curPos;
+	Vector2 releaseVel;
 };

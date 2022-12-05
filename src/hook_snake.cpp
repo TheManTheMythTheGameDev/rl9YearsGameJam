@@ -116,7 +116,7 @@ void HookSnake::Update()
 		{
 			// targetAngle += targetAngle < 90 ? (-0.1f) : (0.1f);
 		}
-		float t = 2 * PI * sqrtf(Vector2Distance(tailPos, pos) / 25.0f) / 10.0f;
+		float t = PI * sqrtf((Vector2Distance(tailPos, pos) / 56.0f) / 9.8f);
 		angle = Lerp(startAngle, targetAngle, swingTimer / t);
 		// angle = EaseSineInOut(swingTimer, startAngle, targetAngle, t);
 

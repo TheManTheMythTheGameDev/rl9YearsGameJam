@@ -7,6 +7,7 @@
     <ClCompile Include="..\..\..\src\grid.cpp" />
     <ClCompile Include="..\..\..\src\snake.cpp" />
     <ClCompile Include="..\..\..\src\physics_object.cpp" />
+    <ClCompile Include="..\..\..\src\hook_snake.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\..\src\raylib_game.rc" />
@@ -33,6 +34,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\physics_object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\hook_snake.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

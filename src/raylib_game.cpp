@@ -26,6 +26,7 @@
 #include "grid.h"
 #include "physics_object.h"
 #include "snake.h"
+#include "hook_snake.h"
 
 //----------------------------------------------------------------------------------
 // Defines and Macros
@@ -52,7 +53,8 @@ typedef enum {
 // TODO: Define your custom data types here
 typedef enum {
     NORMAL_SNAKE = 0,
-    SNAKE
+    SNAKE,
+    HOOK_SNAKE
 } GameplayState;
 
 //----------------------------------------------------------------------------------
@@ -76,6 +78,7 @@ static SnakeState curSnakeState;
 static GameplayState gameplayState;
 
 static Snake snake;
+static HookSnake hookSnake;
 
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
@@ -96,7 +99,7 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "raylib 9yr gamejam");
     
     // TODO: Load resources / Initialize variables at this point
-    gameplayState = SNAKE;
+    gameplayState = HOOK_SNAKE;
 
     cam = Camera2D{ Vector2{ 256 / 2.0f, 256 / 2.0f }, Vector2{ 0.0f, 0.0f }, 0.0f, 1.0f };
 
@@ -106,6 +109,7 @@ int main(void)
 
     InitGrid();
     snake = Snake(Vector2{ 64.0f, 100.0f });
+    hookSnake = HookSnake(Vector2{ 32.0f, 100.0f });
     
     // Render texture to draw full screen, enables screen scaling
     // NOTE: If screen is scaled, mouse input should be scaled proportionally
@@ -178,6 +182,12 @@ void UpdateDrawFrame(void)
         snake.Update();
         break;
     }
+    case HOOK_SNAKE:
+    {
+        cam.offset = Vector2{ 0.0f, 0.0f };
+        hookSnake.Update();
+        break;
+    }
     default:
     {
         break;
@@ -222,6 +232,8 @@ void UpdateDrawFrame(void)
             }
             default:
             {
+                DrawGrid();
+                hookSnake.Draw();
                 break;
             }
             }

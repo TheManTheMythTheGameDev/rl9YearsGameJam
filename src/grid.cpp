@@ -10,7 +10,8 @@ void InitGrid()
 		grid[i][GRID_Y - 1] = 1;
 	}
 
-	grid[10][GRID_Y - 4] = 1;
+	grid[5][GRID_Y - 5] = 1;
+	grid[5][GRID_Y - 4] = 2; // Hook
 }
 
 void DrawGrid()
@@ -23,6 +24,11 @@ void DrawGrid()
 			if (curSquare == 1)
 			{
 				DrawRectangle(x * GRID_W, y * GRID_H, GRID_W, GRID_H, BLACK);
+			}
+			else if (curSquare == 2)
+			{
+				float hookHalfWidth = 3.0f;
+				DrawRectangle((x * GRID_W) + (GRID_W / 2.0f) - hookHalfWidth, (y * GRID_H), hookHalfWidth * 2.0f, 7.0f, GRAY);
 			}
 		}
 	}

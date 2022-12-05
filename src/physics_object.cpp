@@ -28,7 +28,7 @@ void PhysicsObject::Step()
 	for (int i = 0; i < 4; i++)
 	{
 		unsigned int curSquare = GetGridAt(squares[i]);
-		if (curSquare != 0)
+		if (curSquare == 1)
 		{
 			collisions.push_back(i);
 

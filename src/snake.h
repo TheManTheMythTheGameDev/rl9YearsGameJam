@@ -8,7 +8,7 @@
 class Snake : public PhysicsObject
 {
 public:
-	Snake(Vector2 position = Vector2{ 0.0f, 0.0f }, float spacing = 4.0f);
+	Snake(Vector2 position = Vector2{ 0.0f, 0.0f }, float spacing = 8.0f);
 
 	void Update();
 	void Draw();
@@ -19,4 +19,6 @@ public:
 	std::vector<Vector2> nodes;
 private:
 	float nodeSpacing;
+	int curRotNode;
+	bool turnDir;
 };

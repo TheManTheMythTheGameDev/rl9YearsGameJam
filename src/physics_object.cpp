@@ -7,17 +7,17 @@ Vector2 oppDirs[] = {
 	Vector2{ 0.0f, -1.0f }
 };
 
-PhysicsObject::PhysicsObject(Vector2 position, float radius)
+PhysicsObject::PhysicsObject(Vector2 position, float radius, Vector2 grav)
 {
 	pos = position;
 	r = radius;
 
 	vel = Vector2{ 0.0f, 0.0f };
+	gravity = grav;
 }
 
 void PhysicsObject::Step()
 {
-	Vector2 gravity = Vector2{ 0.0f, 0.2f };
 	vel = Vector2Add(vel, gravity);
 
 	pos = Vector2Add(pos, vel);

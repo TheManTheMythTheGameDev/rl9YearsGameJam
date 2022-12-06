@@ -85,7 +85,7 @@ void HookSnake::Update()
 
 	if (tailGrid == 2)
 	{
-		if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) || IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+		if ((IsMouseButtonDown(MOUSE_BUTTON_LEFT) || IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) && tY <= (int)(pos.y / GRID_H))
 		{
 			attached = true;
 		}

@@ -10,7 +10,10 @@ void InitGrid()
 		grid[i][GRID_Y - 1] = 1;
 	}
 
-	grid[8][GRID_Y - 8] = 1;
+	for (int i = 0; i < 5; i++)
+	{
+		grid[8 + i][GRID_Y - 8] = 1;
+	}
 	grid[8][GRID_Y - 7] = 2; // Hook
 }
 

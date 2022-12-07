@@ -18,9 +18,8 @@ private:
 	bool attached;
 	bool attachedLastFrame;
 	float angle;
-	float startAngle;
-	float targetAngle;
-	float swingTimer;
+
+	float swingVel;
 
 	Vector2 lastPos;
 	Vector2 curPos;

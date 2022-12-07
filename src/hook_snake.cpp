@@ -23,13 +23,11 @@ HookSnake::HookSnake(Vector2 position, float len)
 	attached = false;
 	attachedLastFrame = false;
 	angle = 0.0f;
-	startAngle = 0.0f;
-	targetAngle = 0.0f;
-	swingTimer = 0.0f;
 
 	lastPos = Vector2{ 0.0f, 0.0f };
 	curPos = Vector2{ 0.0f, 0.0f };
 	releaseVel = Vector2{ 0.0f, 0.0f };
+	swingVel = 0.0f;
 }
 
 void HookSnake::Update()
@@ -67,6 +65,23 @@ void HookSnake::Update()
 
 	tailGrid = GetGridAt(Vector2{ (float)tX, (float)tY });
 
+	if (tailGrid != 2)
+	{
+		for (int x = -1; x < 2; x++)
+		{
+			for (int y = -1; y < 2; y++)
+			{
+				Vector2 testPoint = Vector2{ (float)(tX + x), (float)(tY + y) };
+				if (GetGridAt(testPoint) == 2)
+				{
+					tX = (int)testPoint.x;
+					tY = (int)testPoint.y;
+					tailGrid = 2;
+				}
+			}
+		}
+	}
+
 	if (!attached)
 	{
 		Step(); // Step physics
@@ -101,50 +116,34 @@ void HookSnake::Update()
 
 	if (attached)
 	{
-		swingTimer += GetFrameTime();
 		if (!attachedLastFrame)
 		{
-			Vector2 diff = Vector2Normalize(Vector2Subtract(pos, tailPos));
-			angle = atan2f(diff.y, diff.x) * RAD2DEG;
-			if (angle < 90.0f)
+			float velLen = Vector2Length(releaseVel) * 1.2f;
+			if (releaseVel.x > 0)
 			{
-				targetAngle = 180.0f - angle + 45.0f;
+				swingVel -= velLen;
 			}
 			else
 			{
-				targetAngle = 90.0f - (angle - 90.0f) - 45.0f;
+				swingVel += velLen;
 			}
-			swingTimer = 0.0f;
-			startAngle = angle;
+			Vector2 relativePos = Vector2Subtract(pos, tailPos);
+			relativePos = Vector2Normalize(relativePos);
+			angle = atan2f(relativePos.y, relativePos.x) * RAD2DEG;
+		}
+
+		if (angle < 90.0f)
+		{
+			swingVel += 0.01f;
 		}
 		else
 		{
-			// targetAngle += targetAngle < 90 ? (-0.1f) : (0.1f);
+			swingVel -= 0.01f;
 		}
-		float t = PI * sqrtf((Vector2Distance(tailPos, pos) / 56.0f) / 9.8f);
-		angle = Lerp(startAngle, targetAngle, swingTimer / t);
-		// angle = EaseSineInOut(swingTimer, startAngle, targetAngle, t);
+
+		angle += swingVel;
 
 		pos = Vector2Add(tailPos, Vector2Scale(Vector2{ cosf(angle * DEG2RAD), sinf(angle * DEG2RAD) }, length));
-		curPos = pos;
-		releaseVel = Vector2Subtract(curPos, lastPos);
-
-		// printf("timer: %f, t: %f, ang: %f\n", swingTimer, t, angle);
-
-		if (swingTimer >= t)
-		{
-			startAngle = angle;
-			if (angle < 90.0f)
-			{
-				targetAngle = (180.0f - angle);
-			}
-			else
-			{
-				targetAngle = (90.0f - (angle - 90.0f));
-			}
-			swingTimer = 0.0f;
-		}
-		lastPos = curPos;
 	}
 	else
 	{
@@ -152,9 +151,14 @@ void HookSnake::Update()
 		{
 			vel = Vector2Add(vel, releaseVel);
 		}
+		swingVel = 0.0f;
 	}
 
+	curPos = pos;
+	releaseVel = Vector2Subtract(curPos, lastPos);
+
 	attachedLastFrame = attached;
+	lastPos = curPos;
 }
 
 void HookSnake::Draw()

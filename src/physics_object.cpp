@@ -26,12 +26,14 @@ void PhysicsObject::Step()
 	Vector2* squares = GetGridEdgePositions();
 
 	collisions.clear();
+	bool correctedUp = false;
 
 	for (int i = 0; i < 4; i++)
 	{
 		unsigned int curSquare = GetGridAt(squares[i]);
 		if (curSquare == 1)
 		{
+			if (i == 3 && correctedUp) break;
 			collisions.push_back(i);
 
 			Vector2 targetPos = Vector2Add(squares[i], oppDirs[i]);
@@ -62,6 +64,8 @@ void PhysicsObject::Step()
 			pos = targetPos;
 
 			(moveX ? vel.x : vel.y) = 0.0f;
+
+			if (i == 2) correctedUp = true;
 		}
 	}
 }

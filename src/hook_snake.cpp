@@ -82,10 +82,11 @@ void HookSnake::Update()
 		}
 	}
 
+	if (attached) gravity = Vector2{ 0.0f, 0.0f };
+	else gravity = Vector2{ 0.0f, 0.2f };
+	Step(); // Step physics
 	if (!attached)
 	{
-		Step(); // Step physics
-
 		tailPos = GetMousePosition();
 		if (Vector2DistanceSqr(tailPos, pos) > length * length)
 		{
@@ -132,6 +133,8 @@ void HookSnake::Update()
 			angle = atan2f(relativePos.y, relativePos.x) * RAD2DEG;
 		}
 
+		if (collisions.size() > 0) swingVel = -swingVel;
+
 		if (angle < 90.0f)
 		{
 			swingVel += 0.01f;
@@ -167,4 +170,60 @@ void HookSnake::Draw()
 	DrawCircle(tailPos.x, tailPos.y, r, RED);
 	// Vector2 thing = Vector2Add(tailPos, Vector2Scale(Vector2{ cosf(targetAngle * DEG2RAD), sinf(targetAngle * DEG2RAD) }, length));
 	// DrawCircle(thing.x, thing.y, r, BLUE);
+
+	Vector2 curveStart = pos;
+	Vector2 curveEnd = tailPos;
+	Vector2 c1 = Vector2{ 0.0f, 0.0f };
+	Vector2 c2 = Vector2{ 0.0f, 0.0f };
+	float dx = curveEnd.x - curveStart.x;
+	float dy = curveEnd.y - curveStart.y;
+	float len = sqrtf(dx * dx + dy * dy);
+	float angle = atan2f(dy, dx);
+	if (len >= length)
+	{
+		// curveEnd.x = curveStart.x + 100 * cosf(angle);
+		// curveEnd.y = curveStart.y + 100 * sinf(angle);
+		c1.x = curveStart.x;
+		c1.y = curveStart.y;
+		c2.x = curveEnd.x;
+		c2.y = curveEnd.y;
+	}
+	else
+	{
+		float a = length;
+		float b = length * cosf(30.0f * PI / 180.0f);
+		float handleDist = sqrtf(b * b * (1.0f - len * len / (a * a)));
+		c1.x = curveStart.x + handleDist * sinf(angle);
+		c1.y = curveStart.y - handleDist * cosf(angle);
+		c2.x = curveEnd.x - handleDist * sinf(angle);
+		c2.y = curveEnd.y + handleDist * cosf(angle);
+	}
+	DrawLineBezierCubic(curveStart, curveEnd, c1, c2, r, BLUE);
+
+	/*
+	// M is the MoveTo command in SVG (the first point on the path)
+// C is the CurveTo command in SVG:
+//   C.x is the end point of the path
+//   C.x1 is the first control point
+//   C.x2 is the second control point
+	function makeFixedLengthSCurve(path, length) {
+		var dx = C.x - M.x, dy = C.y - M.y;
+		var len = Math.sqrt(dx * dx + dy * dy);
+		var angle = Math.atan2(dy, dx);
+		if (len >= length) {
+			C.x = M.x + 100 * Math.cos(angle);
+			C.y = M.y + 100 * Math.sin(angle);
+			C.x1 = M.x; C.y1 = M.y;
+			C.x2 = C.x; C.y2 = C.y;
+		}
+		else {
+			// Ellipse of major axis length and minor axis length*cos(30°)
+			var a = length, b = length * Math.cos(30 * Math.PI / 180);
+			var handleDistance = Math.sqrt(b * b * (1 - len * len / (a * a)));
+			C.x1 = M.x + handleDistance * Math.sin(angle);
+			C.y1 = M.y - handleDistance * Math.cos(angle);
+			C.x2 = C.x - handleDistance * Math.sin(angle);
+			C.y2 = C.y + handleDistance * Math.cos(angle);
+		}
+	}*/
 }

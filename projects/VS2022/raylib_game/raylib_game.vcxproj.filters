@@ -17,6 +17,9 @@
     <Filter Include="Header Files">
       <UniqueIdentifier>{3fcd3eb2-0982-4b8d-9e52-82dec3b97d46}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{fd3f2ada-4906-45ec-97ec-bf83a70d4275}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\normal_snake.h">
@@ -43,5 +46,10 @@
     <ClInclude Include="..\..\..\src\screens.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\src\text.fs">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

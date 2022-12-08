@@ -12,6 +12,7 @@
 ********************************************************************************************/
 
 #include "raylib.h"
+#include "rlgl.h"
 
 #if defined(PLATFORM_WEB)
     #define CUSTOM_MODAL_DIALOGS            // Force custom modal dialogs usage
@@ -93,6 +94,11 @@ static Texture2D instructionsTex;
 
 static unsigned short int dialogueState;
 
+static unsigned char pressXAlpha;
+bool alphaChangeDir;
+static Shader textShader;
+static int textBgLoc;
+
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
@@ -114,8 +120,8 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "raylib 9yr gamejam");
     
     // TODO: Load resources / Initialize variables at this point
-    gameState = SCREEN_LOGO;
-    gameplayState = NORMAL_SNAKE;
+    gameState = SCREEN_GAMEPLAY;
+    gameplayState = HOOK_SNAKE;
 
     cam = Camera2D{ Vector2{ 0.0f, 0.0f }, Vector2{0.0f, 0.0f}, 0.0f, 1.0f};
 
@@ -129,7 +135,11 @@ int main(void)
 
     showInstructions = false;
     instructionsTex = LoadTexture("resources/textures/instructionsScreen.png");
-    dialogueState = 0;
+    dialogueState = 6;
+    pressXAlpha = 1.0f;
+    alphaChangeDir = false;
+    textShader = LoadShader(0, "text.fs");
+    textBgLoc = GetShaderLocation(textShader, "bgTex");
     
     // Render texture to draw full screen, enables screen scaling
     // NOTE: If screen is scaled, mouse input should be scaled proportionally
@@ -157,6 +167,7 @@ int main(void)
     
     // TODO: Unload all loaded resources at this point
     UnloadTexture(instructionsTex);
+    UnloadShader(textShader);
 
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
@@ -237,6 +248,20 @@ void UpdateDrawFrame(void)
             {
                 dialogueState++;
             }
+
+            Vector2 snakePos = snake.GetPosition();
+            snakePos.x /= GRID_W;
+            snakePos.y /= GRID_H;
+            int tX = (int)snakePos.x;
+            int tY = (int)snakePos.y;
+
+            if (GetGridAt(Vector2{ (float)tX, (float)tY }) == 3)
+            {
+                hookSnake = HookSnake(snake.GetPosition());
+                gameplayState = HOOK_SNAKE;
+                dialogueState = 6;
+            }
+
             break;
         }
         case HOOK_SNAKE:
@@ -250,6 +275,12 @@ void UpdateDrawFrame(void)
             }
 
             hookSnake.Update(cam, dt);
+
+            if (IsKeyPressed(KEY_X))
+            {
+                dialogueState++;
+            }
+
             break;
         }
         default:
@@ -353,55 +384,116 @@ void UpdateDrawFrame(void)
                 DrawGrid();
                 snake.Draw();
 
-                if (dialogueState == 0)
+                BeginShaderMode(textShader);
                 {
-                    DrawCenteredText(100, 30, "Hi.");
-                    DrawCenteredText(150, 20, "Press X to continue");
+                    if (dialogueState == 0)
+                    {
+                        DrawCenteredText(100, 30, "Hi.");
+                        DrawCenteredText(150, 20, "Press X to continue");
+                    }
+                    else if (dialogueState == 1)
+                    {
+                        DrawText("!", snake.GetPosition().x, snake.GetPosition().y - 33, 30, BLACK);
+                    }
+                    else if (dialogueState == 2)
+                    {
+                        DrawCenteredText(50, 20, "There's not enough");
+                        DrawCenteredText(75, 20, "time for me to");
+                        DrawCenteredText(100, 20, " explain who I am.");
+                        DrawCenteredText(125, 10, "You're in an apple.");
+                        DrawCenteredText(135, 10, "And there are apples chasing you.");
+                    }
+                    else if (dialogueState == 3)
+                    {
+                        DrawCenteredText(100, 10, "(Yes, the plot to this game");
+                        DrawCenteredText(110, 10, "really is that ridiculous)");
+                    }
+                    else if (dialogueState == 4)
+                    {
+                        DrawCenteredText(30, 20, "Use the arrow keys");
+                        DrawCenteredText(55, 20, " or WASD to move.");
+                        DrawCenteredText(80, 20, "Press up,");
+                        DrawCenteredText(105, 20, "or W,");
+                        DrawCenteredText(130, 20, "or space,");
+                        DrawCenteredText(155, 20, " or Z, to jump.");
+                        DrawCenteredText(180, 10, "Any of them work.");
+                    }
+                    else if (dialogueState == 5)
+                    {
+                        DrawCenteredText(75, 10, "The apples will be coming soon.");
+                        DrawCenteredText(100, 20, "Better get a move on.");
+                    }
                 }
-                else if (dialogueState == 1)
+                EndShaderMode();
+
+                break;
+            }
+            case HOOK_SNAKE:
+            {
+                DrawGrid();
+                hookSnake.Draw();
+
+                
+                BeginShaderMode(textShader);
                 {
-                    DrawText("!", snake.GetPosition().x, snake.GetPosition().y - 33, 30, BLACK);
+                    if (dialogueState == 6)
+                    {
+                        DrawCenteredText(100, 20, "New ability unlocked!");
+                        DrawCenteredText(125, 10, "Press X to continue");
+                    }
+                    else if (dialogueState == 7)
+                    {
+                        DrawCenteredText(75, 20, "You can now control");
+                        DrawCenteredText(100, 20, "Your tail! Move");
+                        DrawCenteredText(125, 20, "around your mouse!");
+                    }
+                    else if (dialogueState == 8)
+                    {
+                        DrawCenteredText(100, 10, "(Remember, you can use WASD to move around)");
+                    }
+                    else if (dialogueState == 9)
+                    {
+                        DrawCenteredText(75, 10, "Hold down the left mouse button");
+                        DrawCenteredText(85, 10, "while your tail is near a hook");
+                        DrawCenteredText(95, 10, "to latch onto it.");
+                        DrawCenteredText(120, 20, "Try it out here!");
+                    }
                 }
-                else if (dialogueState == 2)
-                {
-                    DrawCenteredText(50, 20, "There's not enough");
-                    DrawCenteredText(75, 20, "time for me to");
-                    DrawCenteredText(100, 20, " explain who I am.");
-                    DrawCenteredText(125, 10, "You're in an apple.");
-                    DrawCenteredText(135, 10, "And there are apples chasing you.");
-                }
-                else if (dialogueState == 3)
-                {
-                    DrawCenteredText(100, 10, "(Yes, the plot to this game");
-                    DrawCenteredText(110, 10, "really is that ridiculous)");
-                }
-                else if (dialogueState == 4)
-                {
-                    DrawCenteredText(30, 20, "Use the arrow keys");
-                    DrawCenteredText(55, 20, " or WASD to move.");
-                    DrawCenteredText(80, 20, "Press up,");
-                    DrawCenteredText(105, 20, "or W,");
-                    DrawCenteredText(130, 20, "or space,");
-                    DrawCenteredText(155, 20, " or Z, to jump.");
-                    DrawCenteredText(180, 10, "Any of them work.");
-                }
-                else if (dialogueState == 5)
-                {
-                    DrawCenteredText(75, 10, "The apples will be coming soon.");
-                    DrawCenteredText(100, 20, "Better get a move on.");
-                }
+                EndShaderMode();
 
                 break;
             }
             default:
             {
-                DrawGrid();
-                hookSnake.Draw();
                 break;
             }
             }
         }
         EndMode2D();
+
+        if ((gameplayState == SNAKE && dialogueState < 6) || (gameplayState == HOOK_SNAKE))
+        {
+            DrawText("Press X", 256.0f - MeasureText("Press X", 10) - 3.0f, 5, 10, Color{ 0, 0, 0, pressXAlpha });
+            if (!alphaChangeDir)
+            {
+                pressXAlpha -= 5;
+                if (pressXAlpha <= 0)
+                {
+                    alphaChangeDir = true;
+                    pressXAlpha = 0;
+                }
+            }
+            else
+            {
+                pressXAlpha += 5;
+                if (pressXAlpha >= 255)
+                {
+                    pressXAlpha = 255;
+                    alphaChangeDir = false;
+                }
+            }
+        }
+
         break;
     }
     case SCREEN_ENDING:
@@ -415,7 +507,15 @@ void UpdateDrawFrame(void)
     }
     }
     EndTextureMode();
-    
+
+    rlEnableShader(textShader.id);
+    int slot = 5;
+    rlActiveTextureSlot(slot);
+    rlEnableTexture(target.texture.id);
+    rlSetUniform(textBgLoc, &slot, SHADER_UNIFORM_INT, 1);
+    rlActiveTextureSlot(0);
+    rlDisableShader();
+
     BeginDrawing();
         ClearBackground(RAYWHITE);
         

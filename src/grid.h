@@ -2,7 +2,7 @@
 #include "raylib.h"
 
 // Size of grid along x and y axes
-#define GRID_X 16
+#define GRID_X 20
 #define GRID_Y 16
 
 // Width and height of one square on the grid

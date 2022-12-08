@@ -13,8 +13,10 @@ void InitGrid()
 	for (int i = 0; i < 5; i++)
 	{
 		grid[8 + i][GRID_Y - 4] = 1;
+		grid[13 + i][GRID_Y - 10] = 1;
 	}
-	// grid[8][GRID_Y - 4] = 2; // Hook
+	grid[10][GRID_Y - 5] = 3; // Orb for tail control
+	grid[18][GRID_Y - 9] = 2; // Hook
 }
 
 void DrawGrid()
@@ -32,6 +34,11 @@ void DrawGrid()
 			{
 				float hookHalfWidth = 3.0f;
 				DrawRectangle((x * GRID_W) + (GRID_W / 2.0f) - hookHalfWidth, (y * GRID_H), hookHalfWidth * 2.0f, 7.0f, GRAY);
+			}
+			else if (curSquare == 3)
+			{
+				float orbRadius = 5.0f;
+				DrawCircle((x * GRID_W) + (GRID_W / 2.0f), (y * GRID_H) + GRID_H - orbRadius - 1.0f, orbRadius, GOLD);
 			}
 		}
 	}

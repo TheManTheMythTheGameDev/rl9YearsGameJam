@@ -32,7 +32,7 @@ NormalSnake::NormalSnake(Vector2 startPos, Vector2 dir, float movementTime)
 	controls[LEFT] = KEY_LEFT;
 	controls[RIGHT] = KEY_RIGHT;
 
-	balls = std::vector<Ball>{ Ball{ startPos, dir } };
+	balls = std::vector<Ball>{ Ball{ Vector2Subtract(startPos, Vector2Scale(dir, 2.0f)), dir }, Ball{ Vector2Subtract(startPos, dir), dir }, Ball{ startPos, dir }, };
 	ballCounter = 1;
 
 	direction = dir;

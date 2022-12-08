@@ -373,6 +373,9 @@
     <ClInclude Include="..\..\..\src\screens.h" />
     <ClInclude Include="..\..\..\src\snake.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\src\text.fs" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

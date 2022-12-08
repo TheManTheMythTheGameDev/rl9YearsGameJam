@@ -28,6 +28,12 @@
 #include "snake.h"
 #include "hook_snake.h"
 
+#include "screens.h"
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
+
+#include <string>
+
 //----------------------------------------------------------------------------------
 // Defines and Macros
 //----------------------------------------------------------------------------------
@@ -81,10 +87,15 @@ static GameplayState gameplayState;
 static Snake snake;
 static HookSnake hookSnake;
 
+// Title screen variables
+static bool showInstructions;
+static Texture2D instructionsTex;
+
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
 static void UpdateDrawFrame(void);      // Update and Draw one frame
+static bool DrawButton(Vector2 position, float width, float height, std::string text);
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -103,7 +114,7 @@ int main(void)
     gameState = SCREEN_LOGO;
     gameplayState = NORMAL_SNAKE;
 
-    cam = Camera2D{ Vector2{ 256 / 2.0f, 256 / 2.0f }, Vector2{ 0.0f, 0.0f }, 0.0f, 1.0f };
+    cam = Camera2D{ Vector2{ 0.0f, 0.0f }, Vector2{0.0f, 0.0f}, 0.0f, 1.0f};
 
     InitApples();
 
@@ -112,11 +123,16 @@ int main(void)
     InitGrid();
     snake = Snake(Vector2{ 64.0f, 100.0f });
     hookSnake = HookSnake(Vector2{ 32.0f, 100.0f });
+
+    showInstructions = false;
+    instructionsTex = LoadTexture("resources/textures/instructionsScreen.png");
     
     // Render texture to draw full screen, enables screen scaling
     // NOTE: If screen is scaled, mouse input should be scaled proportionally
     target = LoadRenderTexture(screenWidth, screenHeight);
     SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
+
+    
 
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
@@ -136,6 +152,7 @@ int main(void)
     UnloadRenderTexture(target);
     
     // TODO: Unload all loaded resources at this point
+    UnloadTexture(instructionsTex);
 
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
@@ -155,15 +172,15 @@ void UpdateDrawFrame(void)
     if (IsKeyPressed(KEY_ONE)) screenScale = 1;
     else if (IsKeyPressed(KEY_TWO)) screenScale = 2;
     else if (IsKeyPressed(KEY_THREE)) screenScale = 3;
-    
+
     if (screenScale != prevScreenScale)
     {
         // Scale window to fit the scaled render texture
-        SetWindowSize(screenWidth*screenScale, screenHeight*screenScale);
-        
+        SetWindowSize(screenWidth * screenScale, screenHeight * screenScale);
+
         // Scale mouse proportionally to keep input logic inside the 256x256 screen limits
-        SetMouseScale(1.0f/(float)screenScale, 1.0f/(float)screenScale);
-        
+        SetMouseScale(1.0f / (float)screenScale, 1.0f / (float)screenScale);
+
         prevScreenScale = screenScale;
     }
 
@@ -171,37 +188,70 @@ void UpdateDrawFrame(void)
     //----------------------------------------------------------------------------------
     float dt = GetFrameTime();
 
-    switch (gameplayState)
+    switch (gameState)
     {
-    case NORMAL_SNAKE:
+    case SCREEN_LOGO:
     {
-        curSnakeState = normalSnake.Step(dt);
+        UpdateLogoScreen();
+        if (FinishLogoScreen() == 1)
+        {
+            gameState = SCREEN_TITLE;
+        }
         break;
     }
-    case SNAKE:
+    case SCREEN_TITLE:
     {
-        cam.offset = Vector2{ 0.0f, 0.0f };
-        cam.target = Vector2Subtract(snake.GetPosition(), Vector2{ 256.0f / 2.0f, 256.0f / 2.0f });
-
-        if (cam.target.y > 0.0f)
-        {
-            cam.target.y = 0.0f;
-        }
-
-        snake.Update(dt);
         break;
     }
-    case HOOK_SNAKE:
+    case SCREEN_GAMEPLAY:
     {
-        cam.offset = Vector2{ 0.0f, 0.0f };
-        cam.target = Vector2Subtract(hookSnake.GetPosition(), Vector2{ 256.0f / 2.0f, 256.0f / 2.0f });
-
-        if (cam.target.y > 0.0f)
+        switch (gameplayState)
         {
-            cam.target.y = 0.0f;
+        case NORMAL_SNAKE:
+        {
+            cam.offset = Vector2{ 256 / 2.0f, 256 / 2.0f };
+            curSnakeState = normalSnake.Step(dt);
+            if (curSnakeState == ENDSCENE)
+            {
+                gameplayState = SNAKE;
+            }
+            break;
         }
+        case SNAKE:
+        {
+            cam.offset = Vector2{ 0.0f, 0.0f };
+            cam.target = Vector2Subtract(snake.GetPosition(), Vector2{ 256.0f / 2.0f, 256.0f / 2.0f });
 
-        hookSnake.Update(cam, dt);
+            if (cam.target.y > 0.0f)
+            {
+                cam.target.y = 0.0f;
+            }
+
+            snake.Update(dt);
+            break;
+        }
+        case HOOK_SNAKE:
+        {
+            cam.offset = Vector2{ 0.0f, 0.0f };
+            cam.target = Vector2Subtract(hookSnake.GetPosition(), Vector2{ 256.0f / 2.0f, 256.0f / 2.0f });
+
+            if (cam.target.y > 0.0f)
+            {
+                cam.target.y = 0.0f;
+            }
+
+            hookSnake.Update(cam, dt);
+            break;
+        }
+        default:
+        {
+            break;
+        }
+        }
+        break;
+    }
+    case SCREEN_ENDING:
+    {
         break;
     }
     default:
@@ -214,10 +264,59 @@ void UpdateDrawFrame(void)
     //----------------------------------------------------------------------------------
     // Render all screen to texture (for scaling)
     BeginTextureMode(target);
-        ClearBackground(RAYWHITE);
-        
-        // TODO: Draw screen at 256x256
+    {
+    ClearBackground(RAYWHITE);
 
+    // TODO: Draw screen at 256x256
+
+    switch (gameState)
+    {
+    case SCREEN_LOGO:
+    {
+        DrawLogoScreen();
+        break;
+    }
+    case SCREEN_TITLE:
+    {
+        if (!showInstructions)
+        {
+            if (DrawButton(Vector2{ 256.0f / 2.0f, 256.0f / 2.0f }, 100, 30, "PLAY"))
+            {
+                gameState = SCREEN_GAMEPLAY;
+            }
+            if (DrawButton(Vector2{ 256.0f / 2.0f, 200.0f }, 100, 20, "INSTRUCTIONS"))
+            {
+                showInstructions = true;
+            }
+            // Draw logo
+            DrawText("ENTIRELY NORMAL", 30, 20, 20, BLACK);
+            DrawText("SNAKE GAME", 27, 50, 30, BLACK);
+            // Draw snake
+            DrawRectangle(20, 40, 215, 10, GREEN);
+            // Round ends of snake
+            DrawCircle(20, 45, 5, GREEN);
+            DrawCircle(235, 45, 5, GREEN);
+            // Draw eyes
+            DrawRectangle(229, 42, 5, 2, BLACK);
+            DrawRectangle(229, 46, 5, 2, BLACK);
+        }
+
+        if (showInstructions)
+        {
+            DrawTexture(instructionsTex, 0, 0, WHITE);
+            DrawText("INSTRUCTIONS", 20, 20, 29, BLACK);
+            DrawText("TO MOVE", 120, 90, 20, BLACK);
+            DrawText("EAT THE APPLES", 17, 180, 17, BLACK);
+            if (DrawButton(Vector2{ 150.0f, 220.0f }, 100, 20, "BACK"))
+            {
+                showInstructions = false;
+            }
+        }
+
+        break;
+    }
+    case SCREEN_GAMEPLAY:
+    {
         BeginMode2D(cam);
         {
             switch (gameplayState)
@@ -254,7 +353,19 @@ void UpdateDrawFrame(void)
             }
             }
         }
-        
+        EndMode2D();
+        break;
+    }
+    case SCREEN_ENDING:
+    {
+        break;
+    }
+    default:
+    {
+        break;
+    }
+    }
+    }
     EndTextureMode();
     
     BeginDrawing();
@@ -270,4 +381,9 @@ void UpdateDrawFrame(void)
 
     EndDrawing();
     //----------------------------------------------------------------------------------  
+}
+
+static bool DrawButton(Vector2 position, float width, float height, std::string text)
+{
+    return (GuiButton(Rectangle{ position.x - (width / 2.0f), position.y - (height / 2.0f), width, height }, text.c_str()));
 }

@@ -357,6 +357,7 @@
     <ClCompile Include="..\..\..\src\normal_snake.cpp" />
     <ClCompile Include="..\..\..\src\physics_object.cpp" />
     <ClCompile Include="..\..\..\src\raylib_game.cpp" />
+    <ClCompile Include="..\..\..\src\screen_logo.cpp" />
     <ClCompile Include="..\..\..\src\snake.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -369,6 +370,7 @@
     <ClInclude Include="..\..\..\src\normal_snake.h" />
     <ClInclude Include="..\..\..\src\physics_object.h" />
     <ClInclude Include="..\..\..\src\reasings.h" />
+    <ClInclude Include="..\..\..\src\screens.h" />
     <ClInclude Include="..\..\..\src\snake.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

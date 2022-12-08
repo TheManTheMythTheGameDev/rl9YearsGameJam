@@ -26,17 +26,24 @@ Snake::Snake(Vector2 position, float spacing)
 	}
 
 	curRotNode = 1;
+	decidedDir = false;
+
+	lastPos = Vector2{ 0.0f, 0.0f };
+	lastDirLeft = false;
 }
 
-void Snake::Update()
+void Snake::Update(float dt)
 {
+	lastPos = pos;
+
 	for (int i = 0; i < 2; i++)
 	{
 		for (int k = 0; k < controls[i].size(); k++)
 		{
 			if (IsKeyDown(controls[i][k]))
 			{
-				pos.x += 3.0f * (i * 2 - 1);
+				pos.x += 3.0f * (i * 2 - 1) * 60.0f * dt;
+				lastDirLeft = (i == 0);
 			}
 		}
 	}
@@ -59,6 +66,7 @@ void Snake::Update()
 		nodes.pop_back(); // Remove last node
 		nodes.insert(nodes.begin(), Vector2{ pos.x, pos.y });
 		curRotNode = 1;
+		decidedDir = false;
 	}
 	else
 	{
@@ -78,16 +86,21 @@ void Snake::Update()
 				// printf("diff x: %f, diff y: %f, ang: %f\n", diff.x, diff.y, angle);
 				for (int i = 0; i < 20; i++)
 				{
-					if (curRotNode == 1)
+					if (!decidedDir)
 					{
-						if (angle <= -90)
+						if (angle < -90)
 						{
 							turnDir = false;
+						}
+						else if (FloatEquals(angle, -90) == 1)
+						{
+							turnDir = lastDirLeft;
 						}
 						else
 						{
 							turnDir = true;
 						}
+						decidedDir = true;
 					}
 					if (turnDir)
 					{
@@ -119,6 +132,10 @@ void Snake::Update()
 				curRotNode++;
 			}
 		}
+		else
+		{
+			decidedDir = false;
+		}
 	}
 
 	// Adjust all nodes to maintain same distance between first and second node
@@ -132,13 +149,39 @@ void Snake::Update()
 		}*/
 		nodes[i] = Vector2Add(nodes[i - 1], diff);
 	}
+
+	posChange = Vector2Subtract(pos, lastPos);
+}
+
+void Snake::DrawThickLine(Vector2 start, Vector2 end, float diameter, Color col)
+{
+	float dist = nodeSpacing; // Vector2Distance(start, end);
+	float numCircles = dist / 2.0f;
+	for (int i = 0; i < numCircles; i++)
+	{
+		DrawCircle(Lerp(start.x, end.x, (float)i / (float)numCircles), Lerp(start.y, end.y, (float)i / (float)numCircles), diameter / 2.0f, col);
+	}
 }
 
 void Snake::Draw()
 {
-	DrawCircle(pos.x, pos.y, r * 1.3f, GREEN);
-	for (int i = 0; i < nodes.size(); i++)
+	DrawCircle(nodes[0].x, nodes[0].y, r, GREEN);
+	for (int i = 1; i < nodes.size(); i++)
 	{
-		DrawCircle(nodes[i].x, nodes[i].y, r, GREEN);
+		// DrawCircle(nodes[i].x, nodes[i].y, r, GREEN);
+		DrawThickLine(nodes[i - 1], nodes[i], r * 2.0f, GREEN);
 	}
+
+	// Draw eyes
+	Vector2 posChangeNorm = Vector2Normalize(posChange);
+	float ang = atan2f(posChangeNorm.y, posChangeNorm.x) * RAD2DEG;
+	float eyeWidth = 4.0f;
+	float eyeHeight = 2.0f;
+	Vector2 eyeCenter = Vector2{ nodes[0].x, nodes[0].y};
+	Rectangle rect1 = Rectangle{ eyeCenter.x, eyeCenter.y, eyeWidth, eyeHeight };
+	
+	Rectangle rect2 = Rectangle{ eyeCenter.x, eyeCenter.y, eyeWidth, eyeHeight };
+
+	DrawRectanglePro(rect1, Vector2{ (eyeWidth / 2.0f), (r / 2.0f) + (eyeHeight / 2.0f) }, ang, BLACK);
+	DrawRectanglePro(rect2, Vector2{ (eyeWidth / 2.0f), -(r / 2.0f) + (eyeHeight / 2.0f) }, ang, BLACK);
 }

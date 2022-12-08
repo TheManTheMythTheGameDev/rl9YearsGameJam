@@ -99,7 +99,7 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "raylib 9yr gamejam");
     
     // TODO: Load resources / Initialize variables at this point
-    gameplayState = HOOK_SNAKE;
+    gameplayState = NORMAL_SNAKE;
 
     cam = Camera2D{ Vector2{ 256 / 2.0f, 256 / 2.0f }, Vector2{ 0.0f, 0.0f }, 0.0f, 1.0f };
 
@@ -179,13 +179,27 @@ void UpdateDrawFrame(void)
     case SNAKE:
     {
         cam.offset = Vector2{ 0.0f, 0.0f };
-        snake.Update();
+        cam.target = Vector2Subtract(snake.GetPosition(), Vector2{ 256.0f / 2.0f, 256.0f / 2.0f });
+
+        if (cam.target.y > 0.0f)
+        {
+            cam.target.y = 0.0f;
+        }
+
+        snake.Update(dt);
         break;
     }
     case HOOK_SNAKE:
     {
         cam.offset = Vector2{ 0.0f, 0.0f };
-        hookSnake.Update();
+        cam.target = Vector2Subtract(hookSnake.GetPosition(), Vector2{ 256.0f / 2.0f, 256.0f / 2.0f });
+
+        if (cam.target.y > 0.0f)
+        {
+            cam.target.y = 0.0f;
+        }
+
+        hookSnake.Update(cam, dt);
         break;
     }
     default:

@@ -103,6 +103,7 @@ SnakeState NormalSnake::Step(float dt)
 				}
 			}
 		}
+
 		if (beingEaten)
 		{
 			return EATING;
@@ -143,5 +144,20 @@ void NormalSnake::Draw()
 			if (i == balls.size() - 2) nextPos = headPos;
 			DrawThickLine(Vector2{ curPos.x * BALL_SIZE, curPos.y * BALL_SIZE }, Vector2{ nextPos.x * BALL_SIZE, nextPos.y * BALL_SIZE }, BALL_SIZE, GREEN);
 		}
+	}
+
+	if (balls.size() > 0)
+	{
+		// Draw eyes
+		float ang = atan2f(direction.y, direction.x) * RAD2DEG;
+		float eyeWidth = 4.0f;
+		float eyeHeight = 2.0f;
+		Vector2 eyeCenter = Vector2{ headPos.x, headPos.y };
+		Rectangle rect1 = Rectangle{ eyeCenter.x * BALL_SIZE, eyeCenter.y * BALL_SIZE, eyeWidth, eyeHeight };
+
+		Rectangle rect2 = Rectangle{ eyeCenter.x * BALL_SIZE, eyeCenter.y * BALL_SIZE, eyeWidth, eyeHeight };
+
+		DrawRectanglePro(rect1, Vector2{ (eyeWidth / 2.0f), (BALL_SIZE / 4.0f) + (eyeHeight / 2.0f) }, ang, BLACK);
+		DrawRectanglePro(rect2, Vector2{ (eyeWidth / 2.0f), -(BALL_SIZE / 4.0f) + (eyeHeight / 2.0f) }, ang, BLACK);
 	}
 }

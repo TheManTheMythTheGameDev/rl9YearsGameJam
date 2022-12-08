@@ -23,22 +23,25 @@ HookSnake::HookSnake(Vector2 position, float len)
 	attached = false;
 	attachedLastFrame = false;
 	angle = 0.0f;
+	resolvingCollision = false;
 
 	lastPos = Vector2{ 0.0f, 0.0f };
 	curPos = Vector2{ 0.0f, 0.0f };
 	releaseVel = Vector2{ 0.0f, 0.0f };
 	swingVel = 0.0f;
+	swingLen = 0.0f;
 }
 
-void HookSnake::Update()
+void HookSnake::Update(Camera2D cam, float dt)
 {
+	startPos = pos;
 	for (int i = 0; i < 2; i++)
 	{
 		for (int k = 0; k < controls[i].size(); k++)
 		{
 			if (IsKeyDown(controls[i][k]))
 			{
-				pos.x += 3.0f * (i * 2 - 1);
+				pos.x += 3.0f * (i * 2 - 1) * 60.0f * dt;
 				vel.x = 0.0f;
 			}
 		}
@@ -87,7 +90,7 @@ void HookSnake::Update()
 	Step(); // Step physics
 	if (!attached)
 	{
-		tailPos = GetMousePosition();
+		tailPos = GetScreenToWorld2D(GetMousePosition(), cam);
 		if (Vector2DistanceSqr(tailPos, pos) > length * length)
 		{
 			Vector2 dir = Vector2Normalize(Vector2Subtract(tailPos, pos));
@@ -131,22 +134,43 @@ void HookSnake::Update()
 			Vector2 relativePos = Vector2Subtract(pos, tailPos);
 			relativePos = Vector2Normalize(relativePos);
 			angle = atan2f(relativePos.y, relativePos.x) * RAD2DEG;
+			swingLen = Vector2Distance(pos, tailPos);
 		}
 
-		if (collisions.size() > 0) swingVel = -swingVel;
-
-		if (angle < 90.0f)
+		if (collisions.size() > 0)
 		{
-			swingVel += 0.01f;
+			if (!resolvingCollision)
+			{
+				swingVel = -swingVel;
+				resolvingCollision = true;
+			}
 		}
 		else
 		{
-			swingVel -= 0.01f;
+			resolvingCollision = false;
+		}
+
+		if (angle < 90.0f)
+		{
+			swingVel += 0.01f * 60.0f * dt;
+		}
+		else
+		{
+			swingVel -= 0.01f * 60.0f * dt;
+		}
+
+		if (swingLen < length)
+		{
+			swingLen += 1.0f * 60.0f * dt;
+		}
+		else if (swingLen > length)
+		{
+			swingLen = length;
 		}
 
 		angle += swingVel;
 
-		pos = Vector2Add(tailPos, Vector2Scale(Vector2{ cosf(angle * DEG2RAD), sinf(angle * DEG2RAD) }, length));
+		pos = Vector2Add(tailPos, Vector2Scale(Vector2{ cosf(angle * DEG2RAD), sinf(angle * DEG2RAD) }, swingLen));
 	}
 	else
 	{
@@ -158,16 +182,18 @@ void HookSnake::Update()
 	}
 
 	curPos = pos;
-	releaseVel = Vector2Subtract(curPos, lastPos);
+	releaseVel = Vector2Scale(Vector2Subtract(curPos, lastPos), 60.0f * dt);
 
 	attachedLastFrame = attached;
 	lastPos = curPos;
+
+	posChange = Vector2Subtract(pos, startPos);
 }
 
 void HookSnake::Draw()
 {
 	DrawCircle(pos.x, pos.y, r, GREEN);
-	DrawCircle(tailPos.x, tailPos.y, r, RED);
+	DrawCircle(tailPos.x, tailPos.y, r, GREEN);
 	// Vector2 thing = Vector2Add(tailPos, Vector2Scale(Vector2{ cosf(targetAngle * DEG2RAD), sinf(targetAngle * DEG2RAD) }, length));
 	// DrawCircle(thing.x, thing.y, r, BLUE);
 
@@ -198,32 +224,18 @@ void HookSnake::Draw()
 		c2.x = curveEnd.x - handleDist * sinf(angle);
 		c2.y = curveEnd.y + handleDist * cosf(angle);
 	}
-	DrawLineBezierCubic(curveStart, curveEnd, c1, c2, r, BLUE);
+	DrawLineBezierCubic(curveStart, curveEnd, c1, c2, r * 2.0f, GREEN);
+	
+	// Draw eyes
+	Vector2 posChangeNorm = Vector2Normalize(posChange);
+	float ang = atan2f(posChangeNorm.y, posChangeNorm.x) * RAD2DEG;
+	float eyeWidth = 4.0f;
+	float eyeHeight = 2.0f;
+	Vector2 eyeCenter = Vector2{ pos.x, pos.y };
+	Rectangle rect1 = Rectangle{ eyeCenter.x, eyeCenter.y, eyeWidth, eyeHeight };
 
-	/*
-	// M is the MoveTo command in SVG (the first point on the path)
-// C is the CurveTo command in SVG:
-//   C.x is the end point of the path
-//   C.x1 is the first control point
-//   C.x2 is the second control point
-	function makeFixedLengthSCurve(path, length) {
-		var dx = C.x - M.x, dy = C.y - M.y;
-		var len = Math.sqrt(dx * dx + dy * dy);
-		var angle = Math.atan2(dy, dx);
-		if (len >= length) {
-			C.x = M.x + 100 * Math.cos(angle);
-			C.y = M.y + 100 * Math.sin(angle);
-			C.x1 = M.x; C.y1 = M.y;
-			C.x2 = C.x; C.y2 = C.y;
-		}
-		else {
-			// Ellipse of major axis length and minor axis length*cos(30°)
-			var a = length, b = length * Math.cos(30 * Math.PI / 180);
-			var handleDistance = Math.sqrt(b * b * (1 - len * len / (a * a)));
-			C.x1 = M.x + handleDistance * Math.sin(angle);
-			C.y1 = M.y - handleDistance * Math.cos(angle);
-			C.x2 = C.x - handleDistance * Math.sin(angle);
-			C.y2 = C.y + handleDistance * Math.cos(angle);
-		}
-	}*/
+	Rectangle rect2 = Rectangle{ eyeCenter.x, eyeCenter.y, eyeWidth, eyeHeight };
+
+	DrawRectanglePro(rect1, Vector2{ (eyeWidth / 2.0f), (r / 2.0f) + (eyeHeight / 2.0f) }, ang, BLACK);
+	DrawRectanglePro(rect2, Vector2{ (eyeWidth / 2.0f), -(r / 2.0f) + (eyeHeight / 2.0f) }, ang, BLACK);
 }

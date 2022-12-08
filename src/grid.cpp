@@ -12,9 +12,9 @@ void InitGrid()
 
 	for (int i = 0; i < 5; i++)
 	{
-		grid[8 + i][GRID_Y - 8] = 1;
+		grid[8 + i][GRID_Y - 4] = 1;
 	}
-	grid[8][GRID_Y - 7] = 2; // Hook
+	// grid[8][GRID_Y - 4] = 2; // Hook
 }
 
 void DrawGrid()

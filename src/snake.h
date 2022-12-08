@@ -10,7 +10,7 @@ class Snake : public PhysicsObject
 public:
 	Snake(Vector2 position = Vector2{ 0.0f, 0.0f }, float spacing = 8.0f);
 
-	void Update();
+	void Update(float dt);
 	void Draw();
 
 	std::vector<int> controls[3];
@@ -21,4 +21,11 @@ private:
 	float nodeSpacing;
 	int curRotNode;
 	bool turnDir;
+	bool decidedDir;
+
+	Vector2 lastPos;
+	Vector2 posChange;
+	bool lastDirLeft;
+
+	void DrawThickLine(Vector2 start, Vector2 end, float diameter, Color col);
 };

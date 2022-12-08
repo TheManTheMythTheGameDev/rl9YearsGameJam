@@ -18,11 +18,12 @@ PhysicsObject::PhysicsObject(Vector2 position, float radius, Vector2 grav)
 
 void PhysicsObject::Step()
 {
+	float dt = GetFrameTime();
 	vel = Vector2Add(vel, gravity);
 
 	vel = Vector2Scale(vel, 0.99f);
 
-	pos = Vector2Add(pos, vel);
+	pos = Vector2Add(pos, Vector2Scale(vel, 60.0f * dt));
 	Vector2* squares = GetGridEdgePositions();
 
 	collisions.clear();

@@ -91,11 +91,14 @@ static HookSnake hookSnake;
 static bool showInstructions;
 static Texture2D instructionsTex;
 
+static unsigned short int dialogueState;
+
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
 static void UpdateDrawFrame(void);      // Update and Draw one frame
 static bool DrawButton(Vector2 position, float width, float height, std::string text);
+static void DrawCenteredText(int y, int fontSize, std::string text, Color col = BLACK);
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -126,6 +129,7 @@ int main(void)
 
     showInstructions = false;
     instructionsTex = LoadTexture("resources/textures/instructionsScreen.png");
+    dialogueState = 0;
     
     // Render texture to draw full screen, enables screen scaling
     // NOTE: If screen is scaled, mouse input should be scaled proportionally
@@ -228,6 +232,11 @@ void UpdateDrawFrame(void)
             }
 
             snake.Update(dt);
+
+            if (IsKeyPressed(KEY_X) && dialogueState < 6)
+            {
+                dialogueState++;
+            }
             break;
         }
         case HOOK_SNAKE:
@@ -343,6 +352,45 @@ void UpdateDrawFrame(void)
             {
                 DrawGrid();
                 snake.Draw();
+
+                if (dialogueState == 0)
+                {
+                    DrawCenteredText(100, 30, "Hi.");
+                    DrawCenteredText(150, 20, "Press X to continue");
+                }
+                else if (dialogueState == 1)
+                {
+                    DrawText("!", snake.GetPosition().x, snake.GetPosition().y - 33, 30, BLACK);
+                }
+                else if (dialogueState == 2)
+                {
+                    DrawCenteredText(50, 20, "There's not enough");
+                    DrawCenteredText(75, 20, "time for me to");
+                    DrawCenteredText(100, 20, " explain who I am.");
+                    DrawCenteredText(125, 10, "You're in an apple.");
+                    DrawCenteredText(135, 10, "And there are apples chasing you.");
+                }
+                else if (dialogueState == 3)
+                {
+                    DrawCenteredText(100, 10, "(Yes, the plot to this game");
+                    DrawCenteredText(110, 10, "really is that ridiculous)");
+                }
+                else if (dialogueState == 4)
+                {
+                    DrawCenteredText(30, 20, "Use the arrow keys");
+                    DrawCenteredText(55, 20, " or WASD to move.");
+                    DrawCenteredText(80, 20, "Press up,");
+                    DrawCenteredText(105, 20, "or W,");
+                    DrawCenteredText(130, 20, "or space,");
+                    DrawCenteredText(155, 20, " or Z, to jump.");
+                    DrawCenteredText(180, 10, "Any of them work.");
+                }
+                else if (dialogueState == 5)
+                {
+                    DrawCenteredText(75, 10, "The apples will be coming soon.");
+                    DrawCenteredText(100, 20, "Better get a move on.");
+                }
+
                 break;
             }
             default:
@@ -386,4 +434,10 @@ void UpdateDrawFrame(void)
 static bool DrawButton(Vector2 position, float width, float height, std::string text)
 {
     return (GuiButton(Rectangle{ position.x - (width / 2.0f), position.y - (height / 2.0f), width, height }, text.c_str()));
+}
+
+static void DrawCenteredText(int y, int fontSize, std::string text, Color col)
+{
+    int textWidth = MeasureText(text.c_str(), fontSize);
+    DrawText(text.c_str(), (256.0f / 2.0f) - (textWidth / 2.0f), y, fontSize, col);
 }

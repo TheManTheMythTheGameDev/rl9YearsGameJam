@@ -379,7 +379,8 @@ PROJECT_SOURCE_FILES ?= \
     physics_object.cpp \
     grid.cpp \
     snake.cpp \
-    hook_snake.cpp
+    hook_snake.cpp \
+    screen_logo.cpp
 
 # Define all object files from source files
 OBJS = $(patsubst %.c, %.o, $(PROJECT_SOURCE_FILES))

@@ -46,7 +46,7 @@
 typedef enum { 
     SCREEN_LOGO = 0, 
     SCREEN_TITLE, 
-    SCREEN_GAMEPLAY, 
+    SCREEN_GAMEPLAY,
     SCREEN_ENDING
 } GameScreen;
 
@@ -75,6 +75,7 @@ static Camera2D cam;
 static NormalSnake normalSnake;
 static SnakeState curSnakeState;
 
+static GameScreen gameState;
 static GameplayState gameplayState;
 
 static Snake snake;
@@ -99,6 +100,7 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "raylib 9yr gamejam");
     
     // TODO: Load resources / Initialize variables at this point
+    gameState = SCREEN_LOGO;
     gameplayState = NORMAL_SNAKE;
 
     cam = Camera2D{ Vector2{ 256 / 2.0f, 256 / 2.0f }, Vector2{ 0.0f, 0.0f }, 0.0f, 1.0f };

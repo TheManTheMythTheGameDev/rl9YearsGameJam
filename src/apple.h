@@ -19,6 +19,8 @@ private:
 	Vector2 secondaryPathfindTarget;
 	float speed;
 
+	bool jumping;
+
 	void Jump();
 	void MoveLeft(float dt);
 	void MoveRight(float dt);

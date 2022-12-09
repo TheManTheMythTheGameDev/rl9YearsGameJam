@@ -6,6 +6,7 @@ BadApple::BadApple(Vector2 position, Vector2 targetPosition)
 	r = 5.0f;
 
 	speed = 1.0f; // Slower than snake
+	jumping = false;
 
 	vel = Vector2{ 0.0f, 0.0f };
 
@@ -21,7 +22,7 @@ void BadApple::Update(float dt)
 	int tY = (int)(pos.y / GRID_H);
 	Vector2 appleGrid = Vector2{ (float)tX, (float)tY };
 
-	if (targetPos.GetGroundTile().x != -1.0f && vel.y >= 0)
+	if (targetPos.GetGroundTile().x != -1.0f && !jumping)
 	{
 		// Jump up
 		if (targetPos.GetGroundTile().y < GetGroundTile().y)
@@ -58,12 +59,14 @@ void BadApple::Update(float dt)
 			}
 		}
 		// Drop down
-		else if (targetPos.GetGroundTile().y > GetGroundTile().y || (targetPos.GetGridPosition().y > (pos.y / GRID_H) && vel.y == 0))
+		else if (targetPos.GetGroundTile().y > GetGroundTile().y || (targetPos.GetPosition().y > pos.y))
 		{
 			Vector2 closestGrid = Vector2{ -1.0f, -1.0f };
 			float closestDist = std::numeric_limits<float>().max();
 
-			for (int i = 0; i < GRID_X; i++)
+			bool scanRight = (targetPos.GetPosition().x > pos.x);
+
+			for (int i = appleGrid.x; (scanRight ? i < GRID_X : i > 0); (scanRight ? i++ : i--))
 			{
 				Vector2 curGrid = Vector2{ (float)i, ground.y };
 				if (GetGridAt(curGrid) != 1)
@@ -78,6 +81,21 @@ void BadApple::Update(float dt)
 			}
 
 			pathfindTarget = closestGrid;
+
+			if (Vector2Equals(pathfindTarget, Vector2{ -1.0f, -1.0f }))
+			{
+				pathfindTarget = targetPos.GetGridPosition();
+			}
+
+			if (GetGridAt(Vector2{pathfindTarget.x + 1, pathfindTarget.y}) == 1)
+			{
+				pathfindTarget.x--;
+			}
+			else
+			{
+				pathfindTarget.x++;
+			}
+			// pathfindTarget.x += 3;
 		}
 		// On same y level
 		else
@@ -119,8 +137,14 @@ void BadApple::Update(float dt)
 			if (fabsf((pathfindTarget.x * GRID_W) + (GRID_W / 2.0f) - pos.x) < GRID_W * 2.5f)
 			{
 				Jump();
+				jumping = true;
 			}
 		}
+	}
+
+	if (std::find(collisions.begin(), collisions.end(), 3) != collisions.end())
+	{
+		jumping = false;
 	}
 
 	Step(); // Simulate physics

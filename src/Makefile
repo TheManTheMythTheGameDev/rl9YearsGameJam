@@ -258,7 +258,7 @@ ifeq ($(PLATFORM),PLATFORM_DESKTOP)
         LDFLAGS += $(RAYLIB_PATH)/src/raylib.rc.data
         # -Wl,--subsystem,windows hides the console window
         ifeq ($(BUILD_MODE), RELEASE)
-            LDFLAGS += -Wl,--subsystem,windows
+            # LDFLAGS += -Wl,--subsystem,windows
         endif
     endif
     ifeq ($(PLATFORM_OS),LINUX)

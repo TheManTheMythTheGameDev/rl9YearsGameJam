@@ -28,6 +28,7 @@
 #include "physics_object.h"
 #include "snake.h"
 #include "hook_snake.h"
+#include "apple.h"
 
 #include "screens.h"
 #define RAYGUI_IMPLEMENTATION
@@ -100,6 +101,8 @@ bool alphaChangeDir;
 static Shader textShader;
 static int textBgLoc;
 
+static BadApple testApple;
+
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
@@ -112,6 +115,9 @@ static void DrawCenteredText(int y, int fontSize, std::string text, Color col = 
 //------------------------------------------------------------------------------------
 int main(void)
 {
+#if !defined(_DEBUG)
+    SetTraceLogLevel(LOG_NONE);         // Disable raylib trace log messsages
+#endif
 
     // Initialization
     //--------------------------------------------------------------------------------------
@@ -119,7 +125,7 @@ int main(void)
     
     // TODO: Load resources / Initialize variables at this point
     gameState = SCREEN_GAMEPLAY;
-    gameplayState = HOOK_SNAKE;
+    gameplayState = SNAKE;
 
     cam = Camera2D{ Vector2{ 0.0f, 0.0f }, Vector2{0.0f, 0.0f}, 0.0f, 1.0f};
 
@@ -131,9 +137,11 @@ int main(void)
     snake = Snake(Vector2{ 64.0f, 100.0f });
     hookSnake = HookSnake(Vector2{ 32.0f, 100.0f });
 
+    testApple = BadApple(Vector2{ 16.0f, 100.0f }, snake.GetPosition());
+
     showInstructions = false;
     instructionsTex = LoadTexture("resources/textures/instructionsScreen.png");
-    dialogueState = 6;
+    dialogueState = 0;
     pressXAlpha = 1.0f;
     alphaChangeDir = false;
 
@@ -252,6 +260,9 @@ void UpdateDrawFrame(void)
 
             snake.Update(dt);
 
+            testApple.SetTargetPosition(snake.GetPosition());
+            testApple.Update(dt);
+
             if (IsKeyPressed(KEY_X) && dialogueState < 6)
             {
                 dialogueState++;
@@ -284,7 +295,10 @@ void UpdateDrawFrame(void)
 
             hookSnake.Update(cam, dt);
 
-            if (IsKeyPressed(KEY_X))
+            testApple.SetTargetPosition(hookSnake.GetPosition());
+            testApple.Update(dt);
+
+            if (IsKeyPressed(KEY_X) && dialogueState < 10)
             {
                 dialogueState++;
             }
@@ -391,48 +405,7 @@ void UpdateDrawFrame(void)
             {
                 DrawGrid();
                 snake.Draw();
-
-                BeginShaderMode(textShader);
-                {
-                    if (dialogueState == 0)
-                    {
-                        DrawCenteredText(100, 30, "Hi.");
-                        DrawCenteredText(150, 20, "Press X to continue");
-                    }
-                    else if (dialogueState == 1)
-                    {
-                        DrawText("!", snake.GetPosition().x, snake.GetPosition().y - 33, 30, BLACK);
-                    }
-                    else if (dialogueState == 2)
-                    {
-                        DrawCenteredText(50, 20, "There's not enough");
-                        DrawCenteredText(75, 20, "time for me to");
-                        DrawCenteredText(100, 20, " explain who I am.");
-                        DrawCenteredText(125, 10, "You're in an apple.");
-                        DrawCenteredText(135, 10, "And there are apples chasing you.");
-                    }
-                    else if (dialogueState == 3)
-                    {
-                        DrawCenteredText(100, 10, "(Yes, the plot to this game");
-                        DrawCenteredText(110, 10, "really is that ridiculous)");
-                    }
-                    else if (dialogueState == 4)
-                    {
-                        DrawCenteredText(30, 20, "Use the arrow keys");
-                        DrawCenteredText(55, 20, " or WASD to move.");
-                        DrawCenteredText(80, 20, "Press up,");
-                        DrawCenteredText(105, 20, "or W,");
-                        DrawCenteredText(130, 20, "or space,");
-                        DrawCenteredText(155, 20, " or Z, to jump.");
-                        DrawCenteredText(180, 10, "Any of them work.");
-                    }
-                    else if (dialogueState == 5)
-                    {
-                        DrawCenteredText(75, 10, "The apples will be coming soon.");
-                        DrawCenteredText(100, 20, "Better get a move on.");
-                    }
-                }
-                EndShaderMode();
+                testApple.Draw();
 
                 break;
             }
@@ -440,6 +413,8 @@ void UpdateDrawFrame(void)
             {
                 DrawGrid();
                 hookSnake.Draw();
+
+                testApple.Draw();
 
                 break;
             }
@@ -451,7 +426,7 @@ void UpdateDrawFrame(void)
         }
         EndMode2D();
 
-        if ((gameplayState == SNAKE && dialogueState < 6) || (gameplayState == HOOK_SNAKE))
+        if ((gameplayState == SNAKE && dialogueState < 6) || (gameplayState == HOOK_SNAKE && dialogueState < 10))
         {
             DrawText("Press X", 256.0f - MeasureText("Press X", 10) - 3.0f, 5, 10, Color{ 0, 0, 0, pressXAlpha });
             if (!alphaChangeDir)
@@ -496,6 +471,7 @@ void UpdateDrawFrame(void)
     rlActiveTextureSlot(0);
     rlDisableShader();
 
+    // Draw text
     BeginTextureMode(textTarget);
     {
         ClearBackground(Color{ 0, 0, 0, 0 });
@@ -519,6 +495,51 @@ void UpdateDrawFrame(void)
             }
             case SNAKE:
             {
+                BeginMode2D(cam);
+                {
+                    BeginShaderMode(textShader);
+                    {
+                        if (dialogueState == 0)
+                        {
+                            DrawCenteredText(100, 30, "Hi.");
+                            DrawCenteredText(150, 20, "Press X to continue");
+                        }
+                        else if (dialogueState == 1)
+                        {
+                            DrawText("!", snake.GetPosition().x, snake.GetPosition().y - 33, 30, BLACK);
+                        }
+                        else if (dialogueState == 2)
+                        {
+                            DrawCenteredText(50, 20, "There's not enough");
+                            DrawCenteredText(75, 20, "time for me to");
+                            DrawCenteredText(100, 20, " explain who I am.");
+                            DrawCenteredText(125, 10, "You're in an apple.");
+                            DrawCenteredText(135, 10, "And there are apples chasing you.");
+                        }
+                        else if (dialogueState == 3)
+                        {
+                            DrawCenteredText(100, 10, "(Yes, the plot to this game");
+                            DrawCenteredText(110, 10, "really is that ridiculous)");
+                        }
+                        else if (dialogueState == 4)
+                        {
+                            DrawCenteredText(30, 20, "Use the arrow keys");
+                            DrawCenteredText(55, 20, " or WASD to move.");
+                            DrawCenteredText(80, 20, "Press up,");
+                            DrawCenteredText(105, 20, "or W,");
+                            DrawCenteredText(130, 20, "or space,");
+                            DrawCenteredText(155, 20, " or Z, to jump.");
+                            DrawCenteredText(180, 10, "Any of them work.");
+                        }
+                        else if (dialogueState == 5)
+                        {
+                            DrawCenteredText(75, 10, "The apples will be coming soon.");
+                            DrawCenteredText(100, 20, "Better get a move on.");
+                        }
+                    }
+                    EndShaderMode();
+                }
+                EndMode2D();
                 break;
             }
             case HOOK_SNAKE:
@@ -553,6 +574,7 @@ void UpdateDrawFrame(void)
                     EndShaderMode();
                 }
                 EndMode2D();
+                break;
             }
             default:
             {

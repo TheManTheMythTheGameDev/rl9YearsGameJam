@@ -9,6 +9,7 @@
     <ClCompile Include="..\..\..\src\physics_object.cpp" />
     <ClCompile Include="..\..\..\src\hook_snake.cpp" />
     <ClCompile Include="..\..\..\src\screen_logo.cpp" />
+    <ClCompile Include="..\..\..\src\apple.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\..\src\raylib_game.rc" />
@@ -44,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\screens.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\apple.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

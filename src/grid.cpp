@@ -12,7 +12,7 @@ void InitGrid()
 
 	for (int i = 0; i < 5; i++)
 	{
-		grid[8 + i][GRID_Y - 4] = 1;
+		grid[8 + i][GRID_Y - 3] = 1;
 		grid[13 + i][GRID_Y - 10] = 1;
 	}
 	grid[10][GRID_Y - 5] = 3; // Orb for tail control

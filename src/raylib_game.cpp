@@ -67,13 +67,14 @@ typedef enum {
 //----------------------------------------------------------------------------------
 // Global Variables Definition
 //----------------------------------------------------------------------------------
-static const int screenWidth = 500;
-static const int screenHeight = 500;
+static const int screenWidth = 256;
+static const int screenHeight = 256;
 
 static unsigned int screenScale = 1; 
 static unsigned int prevScreenScale = 1;
 
 static RenderTexture2D target = { 0 };  // Initialized at init
+static RenderTexture2D textTarget = { 0 };
 
 // TODO: Define global variables here, recommended to make them static
 
@@ -151,6 +152,8 @@ int main(void)
     // NOTE: If screen is scaled, mouse input should be scaled proportionally
     target = LoadRenderTexture(screenWidth, screenHeight);
     SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
+    textTarget = LoadRenderTexture(screenWidth, screenHeight);
+    SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
 
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
@@ -168,6 +171,7 @@ int main(void)
     // De-Initialization
     //--------------------------------------------------------------------------------------
     UnloadRenderTexture(target);
+    UnloadRenderTexture(textTarget);
     
     // TODO: Unload all loaded resources at this point
     UnloadTexture(instructionsTex);
@@ -492,8 +496,9 @@ void UpdateDrawFrame(void)
     rlActiveTextureSlot(0);
     rlDisableShader();
 
-    BeginTextureMode(target);
+    BeginTextureMode(textTarget);
     {
+        ClearBackground(Color{ 0, 0, 0, 0 });
         switch (gameState)
         {
         case SCREEN_LOGO:
@@ -564,6 +569,12 @@ void UpdateDrawFrame(void)
             break;
         }
         }
+    }
+    EndTextureMode();
+
+    BeginTextureMode(target);
+    {
+        DrawTexturePro(textTarget.texture, Rectangle{ 0, 0, screenWidth, -screenHeight }, Rectangle{ 0, 0, screenWidth, screenHeight }, Vector2{ 0.0f, 0.0f }, 0.0f, WHITE);
     }
     EndTextureMode();
 

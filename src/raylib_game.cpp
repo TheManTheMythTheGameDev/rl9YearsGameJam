@@ -437,40 +437,6 @@ void UpdateDrawFrame(void)
                 DrawGrid();
                 hookSnake.Draw();
 
-                rlEnableShader(textShader.id);
-                int slot = 5;
-                rlActiveTextureSlot(slot);
-                rlEnableTexture(target.texture.id);
-                rlSetUniform(textBgLoc, &slot, SHADER_UNIFORM_INT, 1);
-                rlActiveTextureSlot(0);
-                rlDisableShader();
-                BeginShaderMode(textShader);
-                {
-                    if (dialogueState == 6)
-                    {
-                        DrawCenteredText(100, 20, "New ability unlocked!");
-                        DrawCenteredText(125, 10, "Press X to continue");
-                    }
-                    else if (dialogueState == 7)
-                    {
-                        DrawCenteredText(75, 20, "You can now control");
-                        DrawCenteredText(100, 20, "Your tail! Move");
-                        DrawCenteredText(125, 20, "around your mouse!");
-                    }
-                    else if (dialogueState == 8)
-                    {
-                        DrawCenteredText(100, 10, "(Remember, you can use WASD to move around)");
-                    }
-                    else if (dialogueState == 9)
-                    {
-                        DrawCenteredText(75, 10, "Hold down the left mouse button");
-                        DrawCenteredText(85, 10, "while your tail is near a hook");
-                        DrawCenteredText(95, 10, "to latch onto it.");
-                        DrawCenteredText(120, 20, "Try it out here!");
-                    }
-                }
-                EndShaderMode();
-
                 break;
             }
             default:
@@ -515,6 +481,89 @@ void UpdateDrawFrame(void)
         break;
     }
     }
+    }
+    EndTextureMode();
+
+    rlEnableShader(textShader.id);
+    int slot = 5;
+    rlActiveTextureSlot(slot);
+    rlEnableTexture(target.texture.id);
+    rlSetUniform(textBgLoc, &slot, SHADER_UNIFORM_INT, 1);
+    rlActiveTextureSlot(0);
+    rlDisableShader();
+
+    BeginTextureMode(target);
+    {
+        switch (gameState)
+        {
+        case SCREEN_LOGO:
+        {
+            break;
+        }
+        case SCREEN_TITLE:
+        {
+            break;
+        }
+        case SCREEN_GAMEPLAY:
+        {
+            switch (gameplayState)
+            {
+            case NORMAL_SNAKE:
+            {
+                break;
+            }
+            case SNAKE:
+            {
+                break;
+            }
+            case HOOK_SNAKE:
+            {
+                BeginMode2D(cam);
+                {
+                    BeginShaderMode(textShader);
+                    {
+                        if (dialogueState == 6)
+                        {
+                            DrawCenteredText(100, 20, "New ability unlocked!");
+                            DrawCenteredText(125, 10, "Press X to continue");
+                        }
+                        else if (dialogueState == 7)
+                        {
+                            DrawCenteredText(75, 20, "You can now control");
+                            DrawCenteredText(100, 20, "Your tail! Move");
+                            DrawCenteredText(125, 20, "around your mouse!");
+                        }
+                        else if (dialogueState == 8)
+                        {
+                            DrawCenteredText(100, 10, "(Remember, you can use WASD to move around)");
+                        }
+                        else if (dialogueState == 9)
+                        {
+                            DrawCenteredText(75, 10, "Hold down the left mouse button");
+                            DrawCenteredText(85, 10, "while your tail is near a hook");
+                            DrawCenteredText(95, 10, "to latch onto it.");
+                            DrawCenteredText(120, 20, "Try it out here!");
+                        }
+                    }
+                    EndShaderMode();
+                }
+                EndMode2D();
+            }
+            default:
+            {
+                break;
+            }
+            }
+        }
+        case SCREEN_ENDING:
+        {
+            break;
+        }
+        default:
+        {
+            break;
+        }
+        }
     }
     EndTextureMode();
 

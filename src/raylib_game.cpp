@@ -67,8 +67,8 @@ typedef enum {
 //----------------------------------------------------------------------------------
 // Global Variables Definition
 //----------------------------------------------------------------------------------
-static const int screenWidth = 256;
-static const int screenHeight = 256;
+static const int screenWidth = 500;
+static const int screenHeight = 500;
 
 static unsigned int screenScale = 1; 
 static unsigned int prevScreenScale = 1;
@@ -105,6 +105,9 @@ static int textBgLoc;
 static void UpdateDrawFrame(void);      // Update and Draw one frame
 static bool DrawButton(Vector2 position, float width, float height, std::string text);
 static void DrawCenteredText(int y, int fontSize, std::string text, Color col = BLACK);
+
+static void TracelogCallback(int logLevel, const char* text, va_list args);
+std::string stringLog;
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -146,6 +149,8 @@ int main(void)
     vsFileName = "resources/shaders/textWeb.vs";
     fsFileName = "resources/shaders/textWeb.fs";
 #endif
+
+    SetTraceLogCallback(TracelogCallback);
 
     textShader = LoadShader(vsFileName.c_str(), fsFileName.c_str());
     textBgLoc = GetShaderLocation(textShader, "bgTex");
@@ -526,6 +531,7 @@ void UpdateDrawFrame(void)
         
         // Draw render texture to screen scaled as required
         DrawTexturePro(target.texture, Rectangle{ 0, 0, (float)target.texture.width, -(float)target.texture.height }, Rectangle{ 0, 0, (float)target.texture.width*screenScale, (float)target.texture.height*screenScale }, Vector2{ 0, 0 }, 0.0f, WHITE);
+        DrawText(stringLog.c_str(), 0, 0, 10, BLUE);
 
         // Draw equivalent mouse position on the target render-texture
         // DrawCircleLines(GetMouseX(), GetMouseY(), 10, MAROON);
@@ -545,4 +551,20 @@ static void DrawCenteredText(int y, int fontSize, std::string text, Color col)
 {
     int textWidth = MeasureText(text.c_str(), fontSize);
     DrawText(text.c_str(), (256.0f / 2.0f) - (textWidth / 2.0f), y, fontSize, col);
+}
+
+static void TracelogCallback(int logLevel, const char* text, va_list args)
+{
+    char buffer[128] = { 0 };
+
+    strcat(buffer, text);
+    strcat(buffer, "\n");
+    vsnprintf(buffer, 128, buffer, args);
+
+    std::string t = std::string(buffer);
+    if (t.find("SHADER") != std::string::npos)
+    {
+        stringLog += "\n";
+        stringLog += t;
+    }
 }

@@ -114,9 +114,6 @@ std::string stringLog;
 //------------------------------------------------------------------------------------
 int main(void)
 {
-#if !defined(_DEBUG)
-    SetTraceLogLevel(LOG_NONE);         // Disable raylib trace log messsages
-#endif
 
     // Initialization
     //--------------------------------------------------------------------------------------

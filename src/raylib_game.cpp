@@ -138,7 +138,16 @@ int main(void)
     dialogueState = 6;
     pressXAlpha = 1.0f;
     alphaChangeDir = false;
-    textShader = LoadShader("text.vs", "text.fs");
+
+    std::string vsFileName = "text.vs";
+    std::string fsFileName = "text.fs";
+
+#if defined(PLATFORM_WEB)
+    vsFileName = "textWeb.vs";
+    fsFileName = "textWeb.fs";
+#endif
+
+    textShader = LoadShader(vsFileName.c_str(), fsFileName.c_str());
     textBgLoc = GetShaderLocation(textShader, "bgTex");
     
     // Render texture to draw full screen, enables screen scaling

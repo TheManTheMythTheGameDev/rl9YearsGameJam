@@ -54,10 +54,10 @@
     <None Include="..\..\..\src\text.vs">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="..\..\..\src\textWeb.vs">
+    <None Include="..\..\..\src\resources\shaders\textWeb.fs">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="..\..\..\src\textWeb.fs">
+    <None Include="..\..\..\src\resources\shaders\textWeb.vs">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

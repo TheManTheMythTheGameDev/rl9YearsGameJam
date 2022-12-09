@@ -374,10 +374,10 @@
     <ClInclude Include="..\..\..\src\snake.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\src\resources\shaders\textWeb.fs" />
+    <None Include="..\..\..\src\resources\shaders\textWeb.vs" />
     <None Include="..\..\..\src\text.fs" />
     <None Include="..\..\..\src\text.vs" />
-    <None Include="..\..\..\src\textWeb.fs" />
-    <None Include="..\..\..\src\textWeb.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -138,7 +138,7 @@ int main(void)
     dialogueState = 6;
     pressXAlpha = 1.0f;
     alphaChangeDir = false;
-    textShader = LoadShader(0, "text.fs");
+    textShader = LoadShader("text.vs", "text.fs");
     textBgLoc = GetShaderLocation(textShader, "bgTex");
     
     // Render texture to draw full screen, enables screen scaling
@@ -433,7 +433,13 @@ void UpdateDrawFrame(void)
                 DrawGrid();
                 hookSnake.Draw();
 
-                
+                rlEnableShader(textShader.id);
+                int slot = 5;
+                rlActiveTextureSlot(slot);
+                rlEnableTexture(target.texture.id);
+                rlSetUniform(textBgLoc, &slot, SHADER_UNIFORM_INT, 1);
+                rlActiveTextureSlot(0);
+                rlDisableShader();
                 BeginShaderMode(textShader);
                 {
                     if (dialogueState == 6)
@@ -507,14 +513,6 @@ void UpdateDrawFrame(void)
     }
     }
     EndTextureMode();
-
-    rlEnableShader(textShader.id);
-    int slot = 5;
-    rlActiveTextureSlot(slot);
-    rlEnableTexture(target.texture.id);
-    rlSetUniform(textBgLoc, &slot, SHADER_UNIFORM_INT, 1);
-    rlActiveTextureSlot(0);
-    rlDisableShader();
 
     BeginDrawing();
         ClearBackground(RAYWHITE);

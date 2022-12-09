@@ -51,5 +51,8 @@
     <None Include="..\..\..\src\text.fs">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="..\..\..\src\text.vs">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

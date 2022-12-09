@@ -143,8 +143,8 @@ int main(void)
     std::string fsFileName = "text.fs";
 
 #if defined(PLATFORM_WEB)
-    vsFileName = "textWeb.vs";
-    fsFileName = "textWeb.fs";
+    vsFileName = "resources/shaders/textWeb.vs";
+    fsFileName = "resources/shaders/textWeb.fs";
 #endif
 
     textShader = LoadShader(vsFileName.c_str(), fsFileName.c_str());
@@ -154,8 +154,6 @@ int main(void)
     // NOTE: If screen is scaled, mouse input should be scaled proportionally
     target = LoadRenderTexture(screenWidth, screenHeight);
     SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
-
-    
 
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);

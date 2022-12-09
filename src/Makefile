@@ -380,7 +380,8 @@ PROJECT_SOURCE_FILES ?= \
     grid.cpp \
     snake.cpp \
     hook_snake.cpp \
-    screen_logo.cpp
+    screen_logo.cpp \ 
+    apple.cpp
 
 # Define all object files from source files
 OBJS = $(patsubst %.c, %.o, $(PROJECT_SOURCE_FILES))

@@ -14,6 +14,8 @@ PhysicsObject::PhysicsObject(Vector2 position, float radius, Vector2 grav)
 
 	vel = Vector2{ 0.0f, 0.0f };
 	gravity = grav;
+
+	ground = Vector2{ -1.0f, -1.0f };
 }
 
 void PhysicsObject::Step()
@@ -69,6 +71,29 @@ void PhysicsObject::Step()
 			if (i == 2) correctedUp = true;
 		}
 	}
+
+	int tX = (int)(pos.x / GRID_W);
+	int tY = (int)(pos.y / GRID_H);
+	Vector2 curGrid = Vector2{ (float)tX, (float)tY };
+	int i = 0;
+	bool shouldStop = false;
+	while (!shouldStop)
+	{
+		if (curGrid.y + i > GRID_Y)
+		{
+			shouldStop = true;
+			ground = Vector2{ -1.0f, -1.0f };
+			break;
+		}
+
+		if (GetGridAt(Vector2{ curGrid.x, curGrid.y + (float)i }) == 1)
+		{
+			shouldStop = true;
+			ground = Vector2{ curGrid.x, curGrid.y + (float)i };
+		}
+
+		i++;
+	}
 }
 
 void PhysicsObject::DebugRender()
@@ -88,6 +113,11 @@ Vector2 PhysicsObject::GetGridPosition()
 	int y = (int)(pos.y / GRID_H);
 
 	return Vector2{ (float)x, (float)y };
+}
+
+Vector2 PhysicsObject::GetVelocity()
+{
+	return vel;
 }
 
 Vector2* PhysicsObject::GetGridEdgePositions()
@@ -127,4 +157,9 @@ Vector2* PhysicsObject::GetGridEdgePositions()
 	}
 
 	return result;
+}
+
+Vector2 PhysicsObject::GetGroundTile()
+{
+	return ground;
 }

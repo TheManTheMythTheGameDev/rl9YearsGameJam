@@ -12,9 +12,9 @@ public:
 	void Update(float dt);
 	void Draw();
 
-	void SetTargetPosition(Vector2 newPosition);
+	void SetTargetPosition(PhysicsObject newPosition);
 private:
-	Vector2 targetPos;
+	PhysicsObject targetPos;
 	Vector2 pathfindTarget;
 	Vector2 secondaryPathfindTarget;
 	float speed;

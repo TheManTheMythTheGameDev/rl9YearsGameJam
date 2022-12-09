@@ -260,7 +260,7 @@ void UpdateDrawFrame(void)
 
             snake.Update(dt);
 
-            testApple.SetTargetPosition(snake.GetPosition());
+            testApple.SetTargetPosition(snake);
             testApple.Update(dt);
 
             if (IsKeyPressed(KEY_X) && dialogueState < 6)
@@ -295,7 +295,7 @@ void UpdateDrawFrame(void)
 
             hookSnake.Update(cam, dt);
 
-            testApple.SetTargetPosition(hookSnake.GetPosition());
+            testApple.SetTargetPosition(hookSnake);
             testApple.Update(dt);
 
             if (IsKeyPressed(KEY_X) && dialogueState < 10)

@@ -20,17 +20,53 @@ void BadApple::Update(float dt)
 	int tX = (int)(pos.x / GRID_W);
 	int tY = (int)(pos.y / GRID_H);
 	Vector2 appleGrid = Vector2{ (float)tX, (float)tY };
-	if (targetPos.y - pos.y < -1)
-	{
-		Vector2 closestGrid = Vector2{ -1.0f, -1.0f };
-		float closestDist = std::numeric_limits<float>().max();
 
-		for (int i = 0; i < GRID_X; i++)
+	if (targetPos.GetGroundTile().x != -1.0f && vel.y >= 0)
+	{
+		// Jump up
+		if (targetPos.GetGroundTile().y < GetGroundTile().y)
 		{
-			for (int y = 1; y < 3; y++)
+			Vector2 closestGrid = Vector2{ -1.0f, -1.0f };
+			float closestDist = std::numeric_limits<float>().max();
+
+			for (int i = 0; i < GRID_X; i++)
 			{
-				Vector2 curGrid = Vector2{ (float)i, (float)((int)(pos.y / GRID_H) - y) };
-				if (GetGridAt(curGrid) == 1 && (GetGridAt(Vector2Add(curGrid, Vector2{ 1.0f, 0.0f })) != 1 || GetGridAt(Vector2Subtract(curGrid, Vector2{ 1.0f, 0.0f })) != 1))
+				for (int y = 1; y < 3; y++)
+				{
+					Vector2 curGrid = Vector2{ (float)i, (float)((int)(pos.y / GRID_H) - y) };
+					if (GetGridAt(curGrid) == 1 && (GetGridAt(Vector2Add(curGrid, Vector2{ 1.0f, 0.0f })) != 1 || GetGridAt(Vector2Subtract(curGrid, Vector2{ 1.0f, 0.0f })) != 1))
+					{
+						float curDist = Vector2DistanceSqr(appleGrid, curGrid);
+						if (curDist < closestDist)
+						{
+							closestGrid = curGrid;
+							closestDist = curDist;
+						}
+					}
+				}
+			}
+
+			secondaryPathfindTarget = closestGrid;
+
+			if (GetGridAt(Vector2Add(closestGrid, Vector2{ 1.0f, 0.0f })) != 1)
+			{
+				pathfindTarget = Vector2{ closestGrid.x + 2.0f, appleGrid.y };
+			}
+			else
+			{
+				pathfindTarget = Vector2{ closestGrid.x - 1.0f, appleGrid.y };
+			}
+		}
+		// Drop down
+		else if (targetPos.GetGroundTile().y > GetGroundTile().y || (targetPos.GetGridPosition().y > (pos.y / GRID_H) && vel.y == 0))
+		{
+			Vector2 closestGrid = Vector2{ -1.0f, -1.0f };
+			float closestDist = std::numeric_limits<float>().max();
+
+			for (int i = 0; i < GRID_X; i++)
+			{
+				Vector2 curGrid = Vector2{ (float)i, ground.y };
+				if (GetGridAt(curGrid) != 1)
 				{
 					float curDist = Vector2DistanceSqr(appleGrid, curGrid);
 					if (curDist < closestDist)
@@ -40,25 +76,24 @@ void BadApple::Update(float dt)
 					}
 				}
 			}
-		}
 
-		secondaryPathfindTarget = closestGrid;
-
-		if (GetGridAt(Vector2Add(closestGrid, Vector2{1.0f, 0.0f})) != 1)
-		{
-			pathfindTarget = Vector2{ closestGrid.x + 2.0f, appleGrid.y };
+			pathfindTarget = closestGrid;
 		}
+		// On same y level
 		else
 		{
-			pathfindTarget = Vector2{ closestGrid.x - 1.0f, appleGrid.y };
+			pathfindTarget = targetPos.GetPosition();
+			pathfindTarget.x /= GRID_W;
+			pathfindTarget.y /= GRID_H;
 		}
 	}
 	else
 	{
-		pathfindTarget = targetPos;
+		pathfindTarget = targetPos.GetPosition();
 		pathfindTarget.x /= GRID_W;
 		pathfindTarget.y /= GRID_H;
 	}
+
 	if (pathfindTarget.x * GRID_W > pos.x)
 	{
 		MoveRight(dt);
@@ -96,7 +131,7 @@ void BadApple::Draw()
 	DrawCircle(pos.x, pos.y, r, RED);
 }
 
-void BadApple::SetTargetPosition(Vector2 newPosition)
+void BadApple::SetTargetPosition(PhysicsObject newPosition)
 {
 	targetPos = newPosition;
 }

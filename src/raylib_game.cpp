@@ -125,6 +125,7 @@ static bool DrawButton(Vector2 position, float width, float height, std::string 
 static void DrawCenteredText(int y, int fontSize, std::string text, Color col = BLACK);
 
 static void Restart();
+static void SetupSpawnZones();
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -170,6 +171,9 @@ int main(void)
 
     // Initialize particle system
     InitParticles();
+
+    InitSpawnZones();
+    SetupSpawnZones();
 
     std::string vsFileName = "text.vs";
     std::string fsFileName = "text.fs";
@@ -218,6 +222,8 @@ int main(void)
     UnloadEnemies();
 
     UnloadParticles();
+
+    UnloadSpawnZones();
 
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
@@ -306,6 +312,16 @@ void UpdateDrawFrame(void)
             if (IsKeyPressed(KEY_X) && dialogueState < 7)
             {
                 dialogueState++;
+                if (dialogueState == 7)
+                {
+                    // Make enemy spawn zones
+                    EnemyZone* zone1 = new EnemyZone{ 0 };
+                    zone1->start = Vector2{ 3.0f, GRID_Y - 5.0f };
+                    zone1->end = Vector2{ 6.0f, GRID_Y };
+                    zone1->enemyCount = 3;
+                    zone1->spawnPos = Vector2{ 2.0f, GRID_Y - 1.0f };
+                    AddSpawnZone(zone1);
+                }
             }
             if (IsKeyPressed(KEY_R))
             {
@@ -725,4 +741,46 @@ static void Restart()
     {
         hookSnake = HookSnake(Vector2Multiply(deadRespawnPos, Vector2{ GRID_W, GRID_H }));
     }
+    SetupSpawnZones();
+    UnloadEnemies();
+}
+
+static void SetupSpawnZones()
+{
+    UnloadSpawnZones();
+
+    EnemyZone* zone2 = new EnemyZone{ 0 };
+    zone2->start = Vector2{ 30.0f, GRID_Y - 14.0f };
+    zone2->end = Vector2{ 36.0f, GRID_Y - 9.0f };
+    zone2->enemyCount = 4;
+    zone2->spawnPos = Vector2{ 26.0f, GRID_Y - 9.0f };
+    AddSpawnZone(zone2);
+
+    EnemyZone* zone3 = new EnemyZone{ 0 };
+    zone3->start = Vector2{ 49.0f, GRID_Y - 16.0f };
+    zone3->end = Vector2{ 52.0f, GRID_Y - 11.0f };
+    zone3->enemyCount = 4;
+    zone3->spawnPos = Vector2{ 48.0f, GRID_Y - 9.0f };
+    AddSpawnZone(zone3);
+
+    EnemyZone* zone4 = new EnemyZone{ 0 };
+    zone4->start = Vector2{ 35.0f, GRID_Y - 32.0f };
+    zone4->end = Vector2{ 39.0f, GRID_Y - 27.0f };
+    zone4->enemyCount = 4;
+    zone4->spawnPos = Vector2{ 39.0f, GRID_Y - 27.0f };
+    AddSpawnZone(zone4);
+
+    EnemyZone* zone5 = new EnemyZone{ 0 };
+    zone5->start = Vector2{ 17.0f, GRID_Y - 43.0f };
+    zone5->end = Vector2{ 22.0f, GRID_Y - 38.0f };
+    zone5->enemyCount = 4;
+    zone5->spawnPos = Vector2{ 22.0f, GRID_Y - 38.0f };
+    AddSpawnZone(zone5);
+    
+    EnemyZone* zone6 = new EnemyZone{ 0 };
+    zone6->start = Vector2{ 4.0f, GRID_Y - 48.0f };
+    zone6->end = Vector2{ 17.0f, GRID_Y - 43.0f };
+    zone6->enemyCount = 4;
+    zone6->spawnPos = Vector2{ 13.0f, GRID_Y - 44.0f };
+    AddSpawnZone(zone6);
 }

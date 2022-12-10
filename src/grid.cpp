@@ -34,6 +34,13 @@ void InitGrid()
 	for (int i = 0; i < GRID_X; i++)
 	{
 		grid[i][GRID_Y - 1] = 1;
+		grid[i][0] = 1;
+	}
+
+	for (int i = 0; i < GRID_Y; i++)
+	{
+		grid[0][i] = 1;
+		grid[GRID_X - 1][i] = 1;
 	}
 
 	// Testing area

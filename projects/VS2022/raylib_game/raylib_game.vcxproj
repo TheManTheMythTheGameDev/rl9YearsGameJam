@@ -357,6 +357,8 @@
     <ClCompile Include="..\..\..\src\hook_snake.cpp" />
     <ClCompile Include="..\..\..\src\normal_apple.cpp" />
     <ClCompile Include="..\..\..\src\normal_snake.cpp" />
+    <ClCompile Include="..\..\..\src\particle.cpp" />
+    <ClCompile Include="..\..\..\src\particle_manager.cpp" />
     <ClCompile Include="..\..\..\src\physics_object.cpp" />
     <ClCompile Include="..\..\..\src\raylib_game.cpp" />
     <ClCompile Include="..\..\..\src\screen_logo.cpp" />
@@ -372,6 +374,8 @@
     <ClInclude Include="..\..\..\src\hook_snake.h" />
     <ClInclude Include="..\..\..\src\normal_apple.h" />
     <ClInclude Include="..\..\..\src\normal_snake.h" />
+    <ClInclude Include="..\..\..\src\particle.h" />
+    <ClInclude Include="..\..\..\src\particle_manager.h" />
     <ClInclude Include="..\..\..\src\physics_object.h" />
     <ClInclude Include="..\..\..\src\reasings.h" />
     <ClInclude Include="..\..\..\src\screens.h" />

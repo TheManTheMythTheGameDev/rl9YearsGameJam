@@ -3,8 +3,8 @@
 #include "raymath.h"
 
 // Size of grid along x and y axes
-#define GRID_X 20
-#define GRID_Y 16
+#define GRID_X 100
+#define GRID_Y 80
 
 // Width and height of one square on the grid
 #define GRID_W 16

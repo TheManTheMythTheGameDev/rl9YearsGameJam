@@ -30,6 +30,7 @@
 #include "hook_snake.h"
 #include "apple.h"
 #include "apple_manager.h"
+#include "particle_manager.h"
 
 #include "screens.h"
 #define RAYGUI_IMPLEMENTATION
@@ -73,7 +74,7 @@ typedef enum {
 static const int screenWidth = 256;
 static const int screenHeight = 256;
 
-static unsigned int screenScale = 1; 
+static unsigned int screenScale = 2; 
 static unsigned int prevScreenScale = 1;
 
 static RenderTexture2D target = { 0 };  // Initialized at init
@@ -99,6 +100,9 @@ static HookSnake hookSnake;
 static bool showInstructions;
 static Texture2D instructionsTex;
 
+// Death screen variables
+static Texture2D deathTex;
+
 static unsigned short int dialogueState;
 
 static unsigned char pressXAlpha;
@@ -106,12 +110,16 @@ bool alphaChangeDir;
 static Shader textShader;
 static int textBgLoc;
 
+static const float maxCamY = (GRID_Y * GRID_H) - (GRID_H * GRID_H);
+
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
 static void UpdateDrawFrame(void);      // Update and Draw one frame
 static bool DrawButton(Vector2 position, float width, float height, std::string text);
 static void DrawCenteredText(int y, int fontSize, std::string text, Color col = BLACK);
+
+static void Restart();
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -140,7 +148,7 @@ int main(void)
     normalSnake = NormalSnake(Vector2{ 0.0f, 0.0f });
 
     InitGrid();
-    snake = Snake(Vector2{ 64.0f, 100.0f });
+    snake = Snake(Vector2{ 96.0f, GRID_Y * GRID_H - 32.0f });
     hookSnake = HookSnake(Vector2{ 32.0f, 100.0f });
 
     showInstructions = false;
@@ -148,8 +156,13 @@ int main(void)
     dialogueState = 0;
     pressXAlpha = 1.0f;
     alphaChangeDir = false;
+
+    deathTex = LoadTexture("resources/textures/deathScreen.png");
     
     InitEnemies();
+
+    // Initialize particle system
+    InitParticles();
 
     std::string vsFileName = "text.vs";
     std::string fsFileName = "text.fs";
@@ -165,9 +178,9 @@ int main(void)
     // Render texture to draw full screen, enables screen scaling
     // NOTE: If screen is scaled, mouse input should be scaled proportionally
     target = LoadRenderTexture(screenWidth, screenHeight);
-    SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
+    // SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
     textTarget = LoadRenderTexture(screenWidth, screenHeight);
-    SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
+    // SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
 
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
@@ -191,7 +204,11 @@ int main(void)
     UnloadTexture(instructionsTex);
     UnloadShader(textShader);
 
+    UnloadTexture(deathTex);
+
     UnloadEnemies();
+
+    UnloadParticles();
 
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
@@ -261,9 +278,9 @@ void UpdateDrawFrame(void)
             cam.offset = Vector2{ 0.0f, 0.0f };
             cam.target = Vector2Subtract(snake.GetPosition(), Vector2{ 256.0f / 2.0f, 256.0f / 2.0f });
 
-            if (cam.target.y > 0.0f)
+            if (cam.target.y > maxCamY)
             {
-                cam.target.y = 0.0f;
+                cam.target.y = maxCamY;
             }
 
             if (snake.Update(dt))
@@ -274,10 +291,17 @@ void UpdateDrawFrame(void)
                 break;
             }
             UpdateEnemies(snake, dt);
+            UpdateParticles(dt);
 
-            if (IsKeyPressed(KEY_X) && dialogueState < 6)
+            if (IsKeyPressed(KEY_X) && dialogueState < 7)
             {
                 dialogueState++;
+            }
+            if (IsKeyPressed(KEY_R))
+            {
+                deadReturnToState = SNAKE;
+                deadRespawnPos = snake.GetLastCheckpoint();
+                Restart();
             }
 
             Vector2 snakePos = snake.GetPosition();
@@ -300,17 +324,30 @@ void UpdateDrawFrame(void)
             cam.offset = Vector2{ 0.0f, 0.0f };
             cam.target = Vector2Subtract(hookSnake.GetPosition(), Vector2{ 256.0f / 2.0f, 256.0f / 2.0f });
 
-            if (cam.target.y > 0.0f)
+            if (cam.target.y > maxCamY)
             {
-                cam.target.y = 0.0f;
+                cam.target.y = maxCamY;
             }
 
-            hookSnake.Update(cam, dt);
+            if (hookSnake.Update(cam, dt))
+            {
+                deadReturnToState = HOOK_SNAKE;
+                deadRespawnPos = hookSnake.GetLastCheckpoint();
+                gameplayState = DEAD;
+                break;
+            }
             UpdateEnemies(hookSnake, dt);
+            UpdateParticles(dt);
 
-            if (IsKeyPressed(KEY_X) && dialogueState < 10)
+            if (IsKeyPressed(KEY_X) && dialogueState < 11)
             {
                 dialogueState++;
+            }
+            if (IsKeyPressed(KEY_R))
+            {
+                deadReturnToState = HOOK_SNAKE;
+                deadRespawnPos = hookSnake.GetLastCheckpoint();
+                Restart();
             }
 
             break;
@@ -424,6 +461,7 @@ void UpdateDrawFrame(void)
                 DrawGrid();
                 snake.Draw();
                 DrawEnemies();
+                DrawParticles();
             }
             EndMode2D();
 
@@ -436,6 +474,7 @@ void UpdateDrawFrame(void)
                 DrawGrid();
                 hookSnake.Draw();
                 DrawEnemies();
+                DrawParticles();
             }
             EndMode2D();
 
@@ -443,17 +482,12 @@ void UpdateDrawFrame(void)
         }
         case DEAD:
         {
+            DrawTexture(deathTex, 0, 0, WHITE);
+            DrawCenteredText(50, 30, "YOU DIED!");
+
             if (DrawButton(Vector2{ 256.0f / 2.0f, 200.0f }, 100.0f, 20.0f, "RESPAWN"))
             {
-                gameplayState = deadReturnToState;
-                if (gameplayState == SNAKE)
-                {
-                    snake = Snake(Vector2Multiply(deadRespawnPos, Vector2{ GRID_W, GRID_H }));
-                }
-                else
-                {
-                    hookSnake = HookSnake(Vector2Multiply(deadRespawnPos, Vector2{ GRID_W, GRID_H }));
-                }
+                Restart();
             }
         }
         default:
@@ -462,7 +496,7 @@ void UpdateDrawFrame(void)
         }
         }
 
-        if ((gameplayState == SNAKE && dialogueState < 6) || (gameplayState == HOOK_SNAKE && dialogueState < 10))
+        if ((gameplayState == SNAKE && dialogueState < 7) || (gameplayState == HOOK_SNAKE && dialogueState < 11))
         {
             DrawText("Press X", 256.0f - MeasureText("Press X", 10) - 3.0f, 5, 10, Color{ 0, 0, 0, pressXAlpha });
             if (!alphaChangeDir)
@@ -531,85 +565,83 @@ void UpdateDrawFrame(void)
             }
             case SNAKE:
             {
-                BeginMode2D(cam);
+                BeginShaderMode(textShader);
                 {
-                    BeginShaderMode(textShader);
+                    if (dialogueState == 0)
                     {
-                        if (dialogueState == 0)
-                        {
-                            DrawCenteredText(100, 30, "Hi.");
-                            DrawCenteredText(150, 20, "Press X to continue");
-                        }
-                        else if (dialogueState == 1)
-                        {
-                            DrawText("!", snake.GetPosition().x, snake.GetPosition().y - 33, 30, BLACK);
-                        }
-                        else if (dialogueState == 2)
-                        {
-                            DrawCenteredText(50, 20, "There's not enough");
-                            DrawCenteredText(75, 20, "time for me to");
-                            DrawCenteredText(100, 20, " explain who I am.");
-                            DrawCenteredText(125, 10, "You're in an apple.");
-                            DrawCenteredText(135, 10, "And there are apples chasing you.");
-                        }
-                        else if (dialogueState == 3)
-                        {
-                            DrawCenteredText(100, 10, "(Yes, the plot to this game");
-                            DrawCenteredText(110, 10, "really is that ridiculous)");
-                        }
-                        else if (dialogueState == 4)
-                        {
-                            DrawCenteredText(30, 20, "Use the arrow keys");
-                            DrawCenteredText(55, 20, " or WASD to move.");
-                            DrawCenteredText(80, 20, "Press up,");
-                            DrawCenteredText(105, 20, "or W,");
-                            DrawCenteredText(130, 20, "or space,");
-                            DrawCenteredText(155, 20, " or Z, to jump.");
-                            DrawCenteredText(180, 10, "Any of them work.");
-                        }
-                        else if (dialogueState == 5)
-                        {
-                            DrawCenteredText(75, 10, "The apples will be coming soon.");
-                            DrawCenteredText(100, 20, "Better get a move on.");
-                        }
+                        DrawCenteredText(100, 30, "Hi.");
+                        DrawCenteredText(150, 20, "Press X to continue");
                     }
-                    EndShaderMode();
+                    else if (dialogueState == 1)
+                    {
+                        BeginMode2D(cam);
+                        DrawText("!", snake.GetPosition().x, snake.GetPosition().y - 33, 30, BLACK);
+                        EndMode2D();
+                    }
+                    else if (dialogueState == 2)
+                    {
+                        DrawCenteredText(50, 20, "There's not enough");
+                        DrawCenteredText(75, 20, "time for me to");
+                        DrawCenteredText(100, 20, " explain who I am.");
+                        DrawCenteredText(125, 10, "You're in an apple.");
+                        DrawCenteredText(135, 10, "And there are apples chasing you.");
+                    }
+                    else if (dialogueState == 3)
+                    {
+                        DrawCenteredText(100, 10, "(Yes, the plot to this game");
+                        DrawCenteredText(110, 10, "really is that ridiculous)");
+                    }
+                    else if (dialogueState == 4)
+                    {
+                        DrawCenteredText(30, 20, "Use the arrow keys");
+                        DrawCenteredText(55, 20, " or WASD to move.");
+                        DrawCenteredText(80, 20, "Press up,");
+                        DrawCenteredText(105, 20, "or W,");
+                        DrawCenteredText(130, 20, "or space,");
+                        DrawCenteredText(155, 20, " or Z, to jump.");
+                        DrawCenteredText(180, 10, "Any of them work.");
+                    }
+                    else if (dialogueState == 5)
+                    {
+                        DrawCenteredText(100, 10, "Press R to go back to your last checkpoint.");
+                    }
+                    else if (dialogueState == 6)
+                    {
+                        DrawCenteredText(75, 10, "The apples will be coming soon.");
+                        DrawCenteredText(100, 20, "Better get a move on.");
+                    }
                 }
-                EndMode2D();
+                EndShaderMode();
                 break;
             }
             case HOOK_SNAKE:
             {
-                BeginMode2D(cam);
+                BeginShaderMode(textShader);
                 {
-                    BeginShaderMode(textShader);
+                    if (dialogueState == 7)
                     {
-                        if (dialogueState == 6)
-                        {
-                            DrawCenteredText(100, 20, "New ability unlocked!");
-                            DrawCenteredText(125, 10, "Press X to continue");
-                        }
-                        else if (dialogueState == 7)
-                        {
-                            DrawCenteredText(75, 20, "You can now control");
-                            DrawCenteredText(100, 20, "Your tail! Move");
-                            DrawCenteredText(125, 20, "around your mouse!");
-                        }
-                        else if (dialogueState == 8)
-                        {
-                            DrawCenteredText(100, 10, "(Remember, you can use WASD to move around)");
-                        }
-                        else if (dialogueState == 9)
-                        {
-                            DrawCenteredText(75, 10, "Hold down the left mouse button");
-                            DrawCenteredText(85, 10, "while your tail is near a hook");
-                            DrawCenteredText(95, 10, "to latch onto it.");
-                            DrawCenteredText(120, 20, "Try it out here!");
-                        }
+                        DrawCenteredText(100, 20, "New ability unlocked!");
+                        DrawCenteredText(125, 10, "Press X to continue");
                     }
-                    EndShaderMode();
+                    else if (dialogueState == 8)
+                    {
+                        DrawCenteredText(75, 20, "You can now control");
+                        DrawCenteredText(100, 20, "Your tail! Move");
+                        DrawCenteredText(125, 20, "around your mouse!");
+                    }
+                    else if (dialogueState == 9)
+                    {
+                        DrawCenteredText(100, 10, "(Remember, you can use WASD to move around)");
+                    }
+                    else if (dialogueState == 10)
+                    {
+                        DrawCenteredText(75, 10, "Hold down the left mouse button");
+                        DrawCenteredText(85, 10, "while your tail is near a hook");
+                        DrawCenteredText(95, 10, "to latch onto it.");
+                        DrawCenteredText(120, 20, "Try it out here!");
+                    }
                 }
-                EndMode2D();
+                EndShaderMode();
                 break;
             }
             default:
@@ -660,4 +692,17 @@ static void DrawCenteredText(int y, int fontSize, std::string text, Color col)
 {
     int textWidth = MeasureText(text.c_str(), fontSize);
     DrawText(text.c_str(), (256.0f / 2.0f) - (textWidth / 2.0f), y, fontSize, col);
+}
+
+static void Restart()
+{
+    gameplayState = deadReturnToState;
+    if (gameplayState == SNAKE)
+    {
+        snake = Snake(Vector2Multiply(deadRespawnPos, Vector2{ GRID_W, GRID_H }));
+    }
+    else
+    {
+        hookSnake = HookSnake(Vector2Multiply(deadRespawnPos, Vector2{ GRID_W, GRID_H }));
+    }
 }

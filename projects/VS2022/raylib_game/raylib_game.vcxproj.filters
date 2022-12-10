@@ -11,6 +11,8 @@
     <ClCompile Include="..\..\..\src\screen_logo.cpp" />
     <ClCompile Include="..\..\..\src\apple.cpp" />
     <ClCompile Include="..\..\..\src\apple_manager.cpp" />
+    <ClCompile Include="..\..\..\src\particle.cpp" />
+    <ClCompile Include="..\..\..\src\particle_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\..\src\raylib_game.rc" />
@@ -52,6 +54,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\apple_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\particle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\particle_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include "apple_manager.h"
+#include "particle_manager.h"
 
 class Snake : public PhysicsObject
 {
@@ -32,6 +33,7 @@ private:
 	bool lastDirLeft;
 
 	Vector2 lastCheckpoint;
+	Vector2 checkpointBeforeLast;
 
 	void DrawThickLine(Vector2 start, Vector2 end, float diameter, Color col);
 

@@ -32,6 +32,7 @@ Snake::Snake(Vector2 position, float spacing)
 	lastDirLeft = false;
 
 	lastCheckpoint = GetGridPosition();
+	checkpointBeforeLast = lastCheckpoint;
 }
 
 bool Snake::Update(float dt)
@@ -159,6 +160,13 @@ bool Snake::Update(float dt)
 	{
 		lastCheckpoint = GetGridPosition();
 	}
+	
+	if (Vector2Equals(lastCheckpoint, checkpointBeforeLast) != 1)
+	{
+		LaunchParticles(Vector2Multiply(lastCheckpoint, Vector2{ GRID_W, GRID_H }));
+	}
+
+	checkpointBeforeLast = lastCheckpoint;
 
 	return DetectAppleCollisions();
 }

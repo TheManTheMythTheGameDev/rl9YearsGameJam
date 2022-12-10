@@ -30,9 +30,12 @@ HookSnake::HookSnake(Vector2 position, float len)
 	releaseVel = Vector2{ 0.0f, 0.0f };
 	swingVel = 0.0f;
 	swingLen = 0.0f;
+
+	lastCheckpoint = GetGridPosition();
+	checkpointBeforeLast = lastCheckpoint;
 }
 
-void HookSnake::Update(Camera2D cam, float dt)
+bool HookSnake::Update(Camera2D cam, float dt)
 {
 	startPos = pos;
 	for (int i = 0; i < 2; i++)
@@ -122,7 +125,7 @@ void HookSnake::Update(Camera2D cam, float dt)
 	{
 		if (!attachedLastFrame)
 		{
-			float velLen = Vector2Length(releaseVel) * 1.2f;
+			float velLen = Vector2Length(releaseVel) * 1.0f;
 			if (releaseVel.x > 0)
 			{
 				swingVel -= velLen;
@@ -188,6 +191,21 @@ void HookSnake::Update(Camera2D cam, float dt)
 	lastPos = curPos;
 
 	posChange = Vector2Subtract(pos, startPos);
+	
+	// Detect if on checkpoint
+	if (GetGridAt(GetGridPosition()) == 4)
+	{
+		lastCheckpoint = GetGridPosition();
+	}
+
+	if (Vector2Equals(lastCheckpoint, checkpointBeforeLast) != 1)
+	{
+		LaunchParticles(Vector2Multiply(lastCheckpoint, Vector2{ GRID_W, GRID_H }));
+	}
+
+	checkpointBeforeLast = lastCheckpoint;
+
+	return DetectAppleCollisions();
 }
 
 void HookSnake::Draw()
@@ -238,4 +256,22 @@ void HookSnake::Draw()
 
 	DrawRectanglePro(rect1, Vector2{ (eyeWidth / 2.0f), (r / 2.0f) + (eyeHeight / 2.0f) }, ang, BLACK);
 	DrawRectanglePro(rect2, Vector2{ (eyeWidth / 2.0f), -(r / 2.0f) + (eyeHeight / 2.0f) }, ang, BLACK);
+}
+
+Vector2 HookSnake::GetLastCheckpoint()
+{
+	return lastCheckpoint;
+}
+
+// Don't detect collisions with bezier curve, just straight line
+bool HookSnake::DetectAppleCollisions()
+{
+	for (int i = 0; i < allApples.size(); i++)
+	{
+		if (CheckCollisionPointLine(allApples[i]->GetPosition(), pos, tailPos, allApples[i]->GetRadius() + r))
+		{
+			return true;
+		}
+	}
+	return false;
 }

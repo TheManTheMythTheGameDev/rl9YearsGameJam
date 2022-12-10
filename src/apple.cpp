@@ -76,6 +76,22 @@ void BadApple::Update(float dt)
 				if (GetGridAt(curGrid) != 1)
 				{
 					float curDist = Vector2DistanceSqr(appleGrid, curGrid);
+
+					if (targetPos.GetPosition().x > pos.x)
+					{
+						if (curGrid.x > GetGridPosition().x)
+						{
+							curDist /= 2.0f;
+						}
+					}
+					else
+					{
+						if (curGrid.x < GetGridPosition().x)
+						{
+							curDist /= 2.0f;
+						}
+					}
+
 					if (curDist < closestDist)
 					{
 						closestGrid = curGrid;

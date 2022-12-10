@@ -141,8 +141,8 @@ int main(void)
     InitWindow(screenWidth * screenScale, screenHeight * screenScale, "raylib 9yr gamejam");
     
     // TODO: Load resources / Initialize variables at this point
-    gameState = SCREEN_GAMEPLAY;
-    gameplayState = SNAKE;
+    gameState = SCREEN_TITLE;
+    gameplayState = NORMAL_SNAKE;
 
     deadReturnToState = SNAKE;
     deadRespawnPos = Vector2{ 0.0f, 0.0f };

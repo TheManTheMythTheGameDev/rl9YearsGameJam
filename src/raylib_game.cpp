@@ -141,8 +141,8 @@ int main(void)
     InitWindow(screenWidth * screenScale, screenHeight * screenScale, "raylib 9yr gamejam");
     
     // TODO: Load resources / Initialize variables at this point
-    gameState = SCREEN_TITLE;
-    gameplayState = NORMAL_SNAKE;
+    gameState = SCREEN_GAMEPLAY;
+    gameplayState = SNAKE;
 
     deadReturnToState = SNAKE;
     deadRespawnPos = Vector2{ 0.0f, 0.0f };
@@ -315,7 +315,7 @@ void UpdateDrawFrame(void)
                 if (dialogueState == 7)
                 {
                     // Make enemy spawn zones
-                    EnemyZone* zone1 = new EnemyZone{ Vector2{ 0.0f, 0.0f }, Vector2{ 0.0f, 0.0f }, 0, Vector2{ 0.0f, 0.0f }, 0, 0.0f, false };
+                    EnemyZone* zone1 = new EnemyZone();
                     zone1->start = Vector2{ 3.0f, GRID_Y - 5.0f };
                     zone1->end = Vector2{ 6.0f, GRID_Y };
                     zone1->enemyCount = 3;
@@ -749,35 +749,35 @@ static void SetupSpawnZones()
 {
     UnloadSpawnZones();
 
-    EnemyZone* zone2 = new EnemyZone{ Vector2{ 0.0f, 0.0f }, Vector2{ 0.0f, 0.0f }, 0, Vector2{ 0.0f, 0.0f }, 0, 0.0f, false };
+    EnemyZone* zone2 = new EnemyZone();
     zone2->start = Vector2{ 30.0f, GRID_Y - 14.0f };
     zone2->end = Vector2{ 36.0f, GRID_Y - 9.0f };
     zone2->enemyCount = 4;
-    zone2->spawnPos = Vector2{ 26.0f, GRID_Y - 9.0f };
+    zone2->spawnPos = Vector2{ 27.0f, GRID_Y - 9.0f };
     AddSpawnZone(zone2);
 
-    EnemyZone* zone3 = new EnemyZone{ Vector2{ 0.0f, 0.0f }, Vector2{ 0.0f, 0.0f }, 0, Vector2{ 0.0f, 0.0f }, 0, 0.0f, false };
+    EnemyZone* zone3 = new EnemyZone();
     zone3->start = Vector2{ 49.0f, GRID_Y - 16.0f };
     zone3->end = Vector2{ 52.0f, GRID_Y - 11.0f };
     zone3->enemyCount = 4;
     zone3->spawnPos = Vector2{ 48.0f, GRID_Y - 9.0f };
     AddSpawnZone(zone3);
 
-    EnemyZone* zone4 = new EnemyZone{ Vector2{ 0.0f, 0.0f }, Vector2{ 0.0f, 0.0f }, 0, Vector2{ 0.0f, 0.0f }, 0, 0.0f, false };
+    EnemyZone* zone4 = new EnemyZone();
     zone4->start = Vector2{ 35.0f, GRID_Y - 32.0f };
     zone4->end = Vector2{ 39.0f, GRID_Y - 27.0f };
     zone4->enemyCount = 4;
     zone4->spawnPos = Vector2{ 39.0f, GRID_Y - 27.0f };
     AddSpawnZone(zone4);
 
-    EnemyZone* zone5 = new EnemyZone{ Vector2{ 0.0f, 0.0f }, Vector2{ 0.0f, 0.0f }, 0, Vector2{ 0.0f, 0.0f }, 0, 0.0f, false };
+    EnemyZone* zone5 = new EnemyZone();
     zone5->start = Vector2{ 17.0f, GRID_Y - 43.0f };
     zone5->end = Vector2{ 22.0f, GRID_Y - 38.0f };
     zone5->enemyCount = 4;
     zone5->spawnPos = Vector2{ 22.0f, GRID_Y - 38.0f };
     AddSpawnZone(zone5);
 
-    EnemyZone* zone6 = new EnemyZone{ Vector2{ 0.0f, 0.0f }, Vector2{ 0.0f, 0.0f }, 0, Vector2{ 0.0f, 0.0f }, 0, 0.0f, false };
+    EnemyZone* zone6 = new EnemyZone();
     zone6->start = Vector2{ 4.0f, GRID_Y - 48.0f };
     zone6->end = Vector2{ 17.0f, GRID_Y - 43.0f };
     zone6->enemyCount = 4;

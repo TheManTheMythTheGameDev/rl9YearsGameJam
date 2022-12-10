@@ -5,6 +5,7 @@ extern std::vector<BadApple*> allApples;
 
 struct EnemyZone
 {
+	EnemyZone();
 	Vector2 start, end;
 	int enemyCount;
 	Vector2 spawnPos;

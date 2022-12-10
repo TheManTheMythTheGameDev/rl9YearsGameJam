@@ -6,6 +6,18 @@ std::vector<EnemyZone*> spawnZones;
 
 const float spawnTime = 1.0f;
 
+EnemyZone::EnemyZone()
+{
+	start = Vector2{ 0.0f, 0.0f };
+	end = Vector2{ 0.0f, 0.0f };
+	enemyCount = 0;
+	spawnPos = Vector2{ 0.0f, 0.0f };
+
+	spawned = 0;
+	spawnTimer = 0.0f;
+	activated = false;
+}
+
 void InitEnemies()
 {
 	allApples = std::vector<BadApple*>();

@@ -126,6 +126,7 @@ void InitGrid()
 	}
 	AddRect(81, 58, 100, 58);
 	AddCheckPoint(90, 59);
+	grid[99][GRID_Y - 60] = 5; // End of game
 }
 
 void DrawGrid()
@@ -162,6 +163,11 @@ void DrawGrid()
 				Vector2 v2 = Vector2Add(v1, Vector2{ 8.0f, 4.0f });
 				Vector2 v3 = Vector2Add(v1, Vector2{ 0.0f, 8.0f });
 				DrawTriangle(v3, v2, v1, GREEN);
+			}
+			else if (curSquare == 5)
+			{
+				float orbRadius = 5.0f;
+				DrawCircle((x * GRID_W) + (GRID_W / 2.0f), (y * GRID_H) + GRID_H - orbRadius - 1.0f, orbRadius, DARKGREEN);
 			}
 		}
 	}

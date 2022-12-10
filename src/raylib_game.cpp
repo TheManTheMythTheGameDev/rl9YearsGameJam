@@ -105,6 +105,9 @@ static Texture2D instructionsTex;
 // Death screen variables
 static Texture2D deathTex;
 
+// Ending screen variables
+static Texture2D endingTex;
+
 static unsigned short int dialogueState;
 
 static unsigned char pressXAlpha;
@@ -134,7 +137,7 @@ int main(void)
 
     // Initialization
     //--------------------------------------------------------------------------------------
-    InitWindow(screenWidth, screenHeight, "raylib 9yr gamejam");
+    InitWindow(screenWidth * screenScale, screenHeight * screenScale, "raylib 9yr gamejam");
     
     // TODO: Load resources / Initialize variables at this point
     gameState = SCREEN_GAMEPLAY;
@@ -160,6 +163,8 @@ int main(void)
     alphaChangeDir = false;
 
     deathTex = LoadTexture("resources/textures/deathScreen.png");
+
+    endingTex = LoadTexture("resources/textures/winScreen.png");
     
     InitEnemies();
 
@@ -207,6 +212,8 @@ int main(void)
     UnloadShader(textShader);
 
     UnloadTexture(deathTex);
+
+    UnloadTexture(endingTex);
 
     UnloadEnemies();
 
@@ -317,7 +324,7 @@ void UpdateDrawFrame(void)
             {
                 hookSnake = HookSnake(snake.GetPosition());
                 gameplayState = HOOK_SNAKE;
-                dialogueState = 6;
+                dialogueState = 7;
             }
 
             break;
@@ -341,6 +348,12 @@ void UpdateDrawFrame(void)
             }
             UpdateEnemies(hookSnake, dt);
             UpdateParticles(dt);
+
+            if (GetGridAt(hookSnake.GetGridPosition()) == 5)
+            {
+                gameState = SCREEN_ENDING;
+                break;
+            }
 
             if (IsKeyPressed(KEY_X) && dialogueState < 11)
             {
@@ -526,6 +539,10 @@ void UpdateDrawFrame(void)
     }
     case SCREEN_ENDING:
     {
+        DrawTexture(endingTex, 0, 0, WHITE);
+        DrawText("YOU", 150, 30, 30, BLACK);
+        DrawText("WIN!", 170, 65, 30, BLACK);
+
         break;
     }
     default:

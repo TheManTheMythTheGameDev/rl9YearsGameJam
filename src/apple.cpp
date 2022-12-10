@@ -31,14 +31,29 @@ void BadApple::Update(float dt)
 			Vector2 closestGrid = Vector2{ -1.0f, -1.0f };
 			float closestDist = std::numeric_limits<float>().max();
 
-			for (int i = appleGrid.x; i < GRID_X; i++)
+			bool scanRight = targetPos.GetPosition().x > pos.x;
+			for (int i = 0; i < GRID_X; i++)
 			{
-				for (int y = 0; y < 3; y++)
+				for (int y = 1; y < 3; y++)
 				{
 					Vector2 curGrid = Vector2{ (float)i, (float)((int)(pos.y / GRID_H) - y) };
 					if (GetGridAt(curGrid) == 1 && (GetGridAt(Vector2Add(curGrid, Vector2{ 1.0f, 0.0f })) != 1 || GetGridAt(Vector2Subtract(curGrid, Vector2{ 1.0f, 0.0f })) != 1) && GetGridAt(Vector2Subtract(curGrid, Vector2{ 0.0f, 1.0f })) != 1)
 					{
 						float curDist = Vector2DistanceSqr(appleGrid, curGrid);
+						if (scanRight)
+						{
+							if (curGrid.x > appleGrid.x)
+							{
+								curDist /= 2.0f;
+							}
+						}
+						else
+						{
+							if (curGrid.x < appleGrid.x)
+							{
+								curDist /= 2.0f;
+							}
+						}
 						if (curDist < closestDist)
 						{
 							closestGrid = curGrid;

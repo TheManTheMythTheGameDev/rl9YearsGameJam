@@ -88,8 +88,8 @@ void InitGrid()
 	AddBlock(47, 8);
 	AddBlock(48, 8);
 
-	AddRect(49, 1, 52, 9);
-	AddCheckPoint(50, 10);
+	AddRect(49, 1, 52, 10);
+	AddCheckPoint(50, 11);
 
 	AddRect(53, 12, 56, 12);
 	AddRect(49, 15, 52, 15);

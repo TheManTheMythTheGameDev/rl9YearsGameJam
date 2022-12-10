@@ -141,8 +141,8 @@ int main(void)
     InitWindow(screenWidth * screenScale, screenHeight * screenScale, "raylib 9yr gamejam");
     
     // TODO: Load resources / Initialize variables at this point
-    gameState = SCREEN_GAMEPLAY;
-    gameplayState = SNAKE;
+    gameState = SCREEN_TITLE;
+    gameplayState = NORMAL_SNAKE;
 
     deadReturnToState = SNAKE;
     deadRespawnPos = Vector2{ 0.0f, 0.0f };
@@ -154,7 +154,7 @@ int main(void)
     normalSnake = NormalSnake(Vector2{ 0.0f, 0.0f });
 
     InitGrid();
-    snake = Snake(Vector2{ 96.0f, GRID_Y * GRID_H - 32.0f });
+    snake = Snake(Vector2{ 112.0f, GRID_Y * GRID_H - 32.0f });
     hookSnake = HookSnake(Vector2{ 32.0f, 100.0f });
 
     showInstructions = false;
@@ -316,8 +316,8 @@ void UpdateDrawFrame(void)
                 {
                     // Make enemy spawn zones
                     EnemyZone* zone1 = new EnemyZone();
-                    zone1->start = Vector2{ 3.0f, GRID_Y - 5.0f };
-                    zone1->end = Vector2{ 6.0f, GRID_Y };
+                    zone1->start = Vector2{ 4.0f, GRID_Y - 5.0f };
+                    zone1->end = Vector2{ 10.0f, GRID_Y };
                     zone1->enemyCount = 3;
                     zone1->spawnPos = Vector2{ 2.0f, GRID_Y - 1.0f };
                     AddSpawnZone(zone1);

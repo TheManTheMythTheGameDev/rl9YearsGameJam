@@ -32,6 +32,8 @@
 #include "apple_manager.h"
 #include "particle_manager.h"
 
+#include "scaleMouse.h"
+
 #include "screens.h"
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
@@ -235,6 +237,7 @@ void UpdateDrawFrame(void)
         SetWindowSize(screenWidth * screenScale, screenHeight * screenScale);
 
         // Scale mouse proportionally to keep input logic inside the 256x256 screen limits
+        MouseScaleSet(Vector2{ 1.0f / (float)screenScale, 1.0f / (float)screenScale });
         SetMouseScale(1.0f / (float)screenScale, 1.0f / (float)screenScale);
 
         prevScreenScale = screenScale;

@@ -361,6 +361,7 @@
     <ClCompile Include="..\..\..\src\particle_manager.cpp" />
     <ClCompile Include="..\..\..\src\physics_object.cpp" />
     <ClCompile Include="..\..\..\src\raylib_game.cpp" />
+    <ClCompile Include="..\..\..\src\scaleMouse.cpp" />
     <ClCompile Include="..\..\..\src\screen_logo.cpp" />
     <ClCompile Include="..\..\..\src\snake.cpp" />
   </ItemGroup>
@@ -377,7 +378,9 @@
     <ClInclude Include="..\..\..\src\particle.h" />
     <ClInclude Include="..\..\..\src\particle_manager.h" />
     <ClInclude Include="..\..\..\src\physics_object.h" />
+    <ClInclude Include="..\..\..\src\raygui.h" />
     <ClInclude Include="..\..\..\src\reasings.h" />
+    <ClInclude Include="..\..\..\src\scaleMouse.h" />
     <ClInclude Include="..\..\..\src\screens.h" />
     <ClInclude Include="..\..\..\src\snake.h" />
   </ItemGroup>

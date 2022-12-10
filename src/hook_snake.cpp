@@ -1,4 +1,5 @@
 #include "hook_snake.h"
+#include "scaleMouse.h"
 
 enum ControlsIndices
 {
@@ -93,7 +94,7 @@ bool HookSnake::Update(Camera2D cam, float dt)
 	Step(); // Step physics
 	if (!attached)
 	{
-		tailPos = GetScreenToWorld2D(GetMousePosition(), cam);
+		tailPos = GetScreenToWorld2D(GetScaledMousePos(), cam);
 		if (Vector2DistanceSqr(tailPos, pos) > length * length)
 		{
 			Vector2 dir = Vector2Normalize(Vector2Subtract(tailPos, pos));

@@ -384,7 +384,8 @@ PROJECT_SOURCE_FILES ?= \
     apple.cpp \
     apple_manager.cpp \
     particle.cpp \
-    particle_manager.cpp
+    particle_manager.cpp \
+    scaleMouse.cpp
 
 # Define all object files from source files
 OBJS = $(patsubst %.c, %.o, $(PROJECT_SOURCE_FILES))

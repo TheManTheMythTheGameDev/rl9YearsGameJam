@@ -13,6 +13,7 @@ BadApple::BadApple(Vector2 position, Vector2 targetPosition)
 	targetPos = targetPosition;
 	pathfindTarget = Vector2{ -1.0f, -1.0f };
 	secondaryPathfindTarget = Vector2{ -1.0f, -1.0f };
+	lastGround = ground;
 }
 
 void BadApple::Update(float dt)
@@ -59,16 +60,19 @@ void BadApple::Update(float dt)
 			}
 		}
 		// Drop down
-		else if (targetPos.GetGroundTile().y > GetGroundTile().y || (targetPos.GetPosition().y > pos.y))
+		else if (targetPos.GetGroundTile().y > GetGroundTile().y || (targetPos.GetPosition().y - pos.y > 0.5))
 		{
 			Vector2 closestGrid = Vector2{ -1.0f, -1.0f };
 			float closestDist = std::numeric_limits<float>().max();
 
-			bool scanRight = (targetPos.GetPosition().x > pos.x);
-
-			for (int i = appleGrid.x; (scanRight ? i < GRID_X : i > 0); (scanRight ? i++ : i--))
+			for (int i = 0; i < GRID_X; i++)
 			{
-				Vector2 curGrid = Vector2{ (float)i, ground.y };
+				Vector2 tempGround = ground;
+				if (std::find(collisions.begin(), collisions.end(), 3) == collisions.end())
+				{
+					tempGround = lastGround;
+				}
+				Vector2 curGrid = Vector2{ (float)i, tempGround.y };
 				if (GetGridAt(curGrid) != 1)
 				{
 					float curDist = Vector2DistanceSqr(appleGrid, curGrid);
@@ -87,7 +91,7 @@ void BadApple::Update(float dt)
 				pathfindTarget = targetPos.GetGridPosition();
 			}
 
-			if (GetGridAt(Vector2{pathfindTarget.x + 1, pathfindTarget.y}) == 1)
+			if (GetGridAt(Vector2{ pathfindTarget.x + 1, pathfindTarget.y }) == 1)
 			{
 				pathfindTarget.x--;
 			}
@@ -106,6 +110,13 @@ void BadApple::Update(float dt)
 		}
 	}
 	else
+	{
+		pathfindTarget = targetPos.GetPosition();
+		pathfindTarget.x /= GRID_W;
+		pathfindTarget.y /= GRID_H;
+	}
+
+	if (pathfindTarget.x == -1)
 	{
 		pathfindTarget = targetPos.GetPosition();
 		pathfindTarget.x /= GRID_W;
@@ -145,6 +156,7 @@ void BadApple::Update(float dt)
 	if (std::find(collisions.begin(), collisions.end(), 3) != collisions.end())
 	{
 		jumping = false;
+		lastGround = ground;
 	}
 
 	Step(); // Simulate physics

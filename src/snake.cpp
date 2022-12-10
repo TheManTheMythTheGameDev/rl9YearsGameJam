@@ -30,9 +30,11 @@ Snake::Snake(Vector2 position, float spacing)
 
 	lastPos = Vector2{ 0.0f, 0.0f };
 	lastDirLeft = false;
+
+	lastCheckpoint = GetGridPosition();
 }
 
-void Snake::Update(float dt)
+bool Snake::Update(float dt)
 {
 	lastPos = pos;
 
@@ -151,6 +153,14 @@ void Snake::Update(float dt)
 	}
 
 	posChange = Vector2Subtract(pos, lastPos);
+
+	// Detect if on checkpoint
+	if (GetGridAt(GetGridPosition()) == 4)
+	{
+		lastCheckpoint = GetGridPosition();
+	}
+
+	return DetectAppleCollisions();
 }
 
 void Snake::DrawThickLine(Vector2 start, Vector2 end, float diameter, Color col)
@@ -161,6 +171,21 @@ void Snake::DrawThickLine(Vector2 start, Vector2 end, float diameter, Color col)
 	{
 		DrawCircle(Lerp(start.x, end.x, (float)i / (float)numCircles), Lerp(start.y, end.y, (float)i / (float)numCircles), diameter / 2.0f, col);
 	}
+}
+
+bool Snake::DetectAppleCollisions()
+{
+	for (int i = 0; i < allApples.size(); i++)
+	{
+		for (int s = 0; s < nodes.size(); s++)
+		{
+			if (CheckCollisionCircles(allApples[i]->GetPosition(), allApples[i]->GetRadius(), nodes[s], r))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 void Snake::Draw()
@@ -184,4 +209,9 @@ void Snake::Draw()
 
 	DrawRectanglePro(rect1, Vector2{ (eyeWidth / 2.0f), (r / 2.0f) + (eyeHeight / 2.0f) }, ang, BLACK);
 	DrawRectanglePro(rect2, Vector2{ (eyeWidth / 2.0f), -(r / 2.0f) + (eyeHeight / 2.0f) }, ang, BLACK);
+}
+
+Vector2 Snake::GetLastCheckpoint()
+{
+	return lastCheckpoint;
 }

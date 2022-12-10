@@ -4,14 +4,18 @@
 #include "physics_object.h"
 #include <vector>
 #include <algorithm>
+#include "apple_manager.h"
 
 class Snake : public PhysicsObject
 {
 public:
 	Snake(Vector2 position = Vector2{ 0.0f, 0.0f }, float spacing = 8.0f);
 
-	void Update(float dt);
+	// Returns whether snake is dead
+	bool Update(float dt);
 	void Draw();
+
+	Vector2 GetLastCheckpoint();
 
 	std::vector<int> controls[3];
 
@@ -27,5 +31,9 @@ private:
 	Vector2 posChange;
 	bool lastDirLeft;
 
+	Vector2 lastCheckpoint;
+
 	void DrawThickLine(Vector2 start, Vector2 end, float diameter, Color col);
+
+	bool DetectAppleCollisions();
 };

@@ -352,6 +352,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\apple.cpp" />
+    <ClCompile Include="..\..\..\src\apple_manager.cpp" />
     <ClCompile Include="..\..\..\src\grid.cpp" />
     <ClCompile Include="..\..\..\src\hook_snake.cpp" />
     <ClCompile Include="..\..\..\src\normal_apple.cpp" />
@@ -366,6 +367,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\apple.h" />
+    <ClInclude Include="..\..\..\src\apple_manager.h" />
     <ClInclude Include="..\..\..\src\grid.h" />
     <ClInclude Include="..\..\..\src\hook_snake.h" />
     <ClInclude Include="..\..\..\src\normal_apple.h" />

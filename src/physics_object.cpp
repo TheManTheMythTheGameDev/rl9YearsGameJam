@@ -90,6 +90,7 @@ void PhysicsObject::Step()
 		{
 			shouldStop = true;
 			ground = Vector2{ curGrid.x, curGrid.y + (float)i };
+			break;
 		}
 
 		i++;
@@ -118,6 +119,11 @@ Vector2 PhysicsObject::GetGridPosition()
 Vector2 PhysicsObject::GetVelocity()
 {
 	return vel;
+}
+
+float PhysicsObject::GetRadius()
+{
+	return r;
 }
 
 Vector2* PhysicsObject::GetGridEdgePositions()

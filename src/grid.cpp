@@ -10,6 +10,8 @@ void InitGrid()
 		grid[i][GRID_Y - 1] = 1;
 	}
 
+	grid[13][GRID_Y - 2] = 4; // Checkpoint
+
 	for (int i = 0; i < 5; i++)
 	{
 		grid[8 + i][GRID_Y - 3] = 1;
@@ -39,6 +41,20 @@ void DrawGrid()
 			{
 				float orbRadius = 5.0f;
 				DrawCircle((x * GRID_W) + (GRID_W / 2.0f), (y * GRID_H) + GRID_H - orbRadius - 1.0f, orbRadius, GOLD);
+			}
+			else if (curSquare == 4)
+			{
+				// Draw a flag
+				// -----------
+				// Draw pole
+				float poleWidth = 3;
+				float poleHeight = 14;
+				DrawRectangle((x * GRID_W) + (GRID_W / 2.0f) - (poleWidth / 2.0f), (y * GRID_H) + GRID_H - poleHeight, poleWidth, poleHeight, LIGHTGRAY);
+				// Draw flag
+				Vector2 v1 = Vector2{ (x * GRID_W) + (GRID_W / 2.0f) + (poleWidth / 2.0f), (y * GRID_H) + GRID_H - poleHeight };
+				Vector2 v2 = Vector2Add(v1, Vector2{ 8.0f, 4.0f });
+				Vector2 v3 = Vector2Add(v1, Vector2{ 0.0f, 8.0f });
+				DrawTriangle(v3, v2, v1, GREEN);
 			}
 		}
 	}

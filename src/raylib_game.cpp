@@ -29,6 +29,7 @@
 #include "snake.h"
 #include "hook_snake.h"
 #include "apple.h"
+#include "apple_manager.h"
 
 #include "screens.h"
 #define RAYGUI_IMPLEMENTATION
@@ -62,7 +63,8 @@ typedef enum {
 typedef enum {
     NORMAL_SNAKE = 0,
     SNAKE,
-    HOOK_SNAKE
+    HOOK_SNAKE,
+    DEAD
 } GameplayState;
 
 //----------------------------------------------------------------------------------
@@ -87,6 +89,9 @@ static SnakeState curSnakeState;
 static GameScreen gameState;
 static GameplayState gameplayState;
 
+static GameplayState deadReturnToState;
+static Vector2 deadRespawnPos;
+
 static Snake snake;
 static HookSnake hookSnake;
 
@@ -100,8 +105,6 @@ static unsigned char pressXAlpha;
 bool alphaChangeDir;
 static Shader textShader;
 static int textBgLoc;
-
-static BadApple testApple;
 
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
@@ -127,6 +130,9 @@ int main(void)
     gameState = SCREEN_GAMEPLAY;
     gameplayState = SNAKE;
 
+    deadReturnToState = SNAKE;
+    deadRespawnPos = Vector2{ 0.0f, 0.0f };
+
     cam = Camera2D{ Vector2{ 0.0f, 0.0f }, Vector2{0.0f, 0.0f}, 0.0f, 1.0f};
 
     InitApples();
@@ -137,13 +143,13 @@ int main(void)
     snake = Snake(Vector2{ 64.0f, 100.0f });
     hookSnake = HookSnake(Vector2{ 32.0f, 100.0f });
 
-    testApple = BadApple(Vector2{ 16.0f, 100.0f }, snake.GetPosition());
-
     showInstructions = false;
     instructionsTex = LoadTexture("resources/textures/instructionsScreen.png");
     dialogueState = 0;
     pressXAlpha = 1.0f;
     alphaChangeDir = false;
+    
+    InitEnemies();
 
     std::string vsFileName = "text.vs";
     std::string fsFileName = "text.fs";
@@ -184,6 +190,8 @@ int main(void)
     // TODO: Unload all loaded resources at this point
     UnloadTexture(instructionsTex);
     UnloadShader(textShader);
+
+    UnloadEnemies();
 
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
@@ -258,10 +266,14 @@ void UpdateDrawFrame(void)
                 cam.target.y = 0.0f;
             }
 
-            snake.Update(dt);
-
-            testApple.SetTargetPosition(snake);
-            testApple.Update(dt);
+            if (snake.Update(dt))
+            {
+                deadReturnToState = SNAKE;
+                deadRespawnPos = snake.GetLastCheckpoint();
+                gameplayState = DEAD;
+                break;
+            }
+            UpdateEnemies(snake, dt);
 
             if (IsKeyPressed(KEY_X) && dialogueState < 6)
             {
@@ -294,15 +306,17 @@ void UpdateDrawFrame(void)
             }
 
             hookSnake.Update(cam, dt);
-
-            testApple.SetTargetPosition(hookSnake);
-            testApple.Update(dt);
+            UpdateEnemies(hookSnake, dt);
 
             if (IsKeyPressed(KEY_X) && dialogueState < 10)
             {
                 dialogueState++;
             }
 
+            break;
+        }
+        case DEAD:
+        {
             break;
         }
         default:
@@ -379,11 +393,11 @@ void UpdateDrawFrame(void)
     }
     case SCREEN_GAMEPLAY:
     {
-        BeginMode2D(cam);
+        switch (gameplayState)
         {
-            switch (gameplayState)
-            {
-            case NORMAL_SNAKE:
+        case NORMAL_SNAKE:
+        {
+            BeginMode2D(cam);
             {
                 // If being eaten, draw snake under apples
                 if (curSnakeState == SnakeState::EATING)
@@ -399,32 +413,54 @@ void UpdateDrawFrame(void)
                 {
 
                 }
-                break;
             }
-            case SNAKE:
+            EndMode2D();
+            break;
+        }
+        case SNAKE:
+        {
+            BeginMode2D(cam);
             {
                 DrawGrid();
                 snake.Draw();
-                testApple.Draw();
-
-                break;
+                DrawEnemies();
             }
-            case HOOK_SNAKE:
+            EndMode2D();
+
+            break;
+        }
+        case HOOK_SNAKE:
+        {
+            BeginMode2D(cam);
             {
                 DrawGrid();
                 hookSnake.Draw();
-
-                testApple.Draw();
-
-                break;
+                DrawEnemies();
             }
-            default:
+            EndMode2D();
+
+            break;
+        }
+        case DEAD:
+        {
+            if (DrawButton(Vector2{ 256.0f / 2.0f, 200.0f }, 100.0f, 20.0f, "RESPAWN"))
             {
-                break;
-            }
+                gameplayState = deadReturnToState;
+                if (gameplayState == SNAKE)
+                {
+                    snake = Snake(Vector2Multiply(deadRespawnPos, Vector2{ GRID_W, GRID_H }));
+                }
+                else
+                {
+                    hookSnake = HookSnake(Vector2Multiply(deadRespawnPos, Vector2{ GRID_W, GRID_H }));
+                }
             }
         }
-        EndMode2D();
+        default:
+        {
+            break;
+        }
+        }
 
         if ((gameplayState == SNAKE && dialogueState < 6) || (gameplayState == HOOK_SNAKE && dialogueState < 10))
         {

@@ -21,6 +21,8 @@ private:
 
 	bool jumping;
 
+	Vector2 lastGround;
+
 	void Jump();
 	void MoveLeft(float dt);
 	void MoveRight(float dt);

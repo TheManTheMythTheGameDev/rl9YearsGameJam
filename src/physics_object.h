@@ -15,6 +15,7 @@ public:
 	Vector2 GetPosition();
 	Vector2 GetGridPosition();
 	Vector2 GetVelocity();
+	float GetRadius();
 
 	// Returns an array of 4 positions, on the farthest extremes of both axes
 	// In order of: left, right, up, down

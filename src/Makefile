@@ -381,7 +381,8 @@ PROJECT_SOURCE_FILES ?= \
     snake.cpp \
     hook_snake.cpp \
     screen_logo.cpp \
-    apple.cpp
+    apple.cpp \
+    apple_manager.cpp
 
 # Define all object files from source files
 OBJS = $(patsubst %.c, %.o, $(PROJECT_SOURCE_FILES))

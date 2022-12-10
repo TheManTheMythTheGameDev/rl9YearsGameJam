@@ -1,5 +1,6 @@
 #pragma once
 #include "raylib.h"
+#include "raymath.h"
 
 // Size of grid along x and y axes
 #define GRID_X 20
